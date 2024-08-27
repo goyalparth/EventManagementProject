@@ -1,4 +1,6 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, Button, StyleSheet } from 'react-native';
+import EventsCard from '../Components/EventsCard';
+
 
 
 
@@ -7,24 +9,64 @@ const ProgramScreen = () => {
 
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>ProgramScreen</Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollView}>
+            <EventsCard
+                title="Event1"
+                label="0810 hours"
+                
+            />
+            <EventsCard
+                title="Event2"
+                label="1000 hours"
+                
+            />
+
+            <EventsCard
+                title="Event3"
+                label="1000 hours"
+                
+            />
+
+            <EventsCard
+                title="Event1"
+                label="0810 hours"
+                
+            />
+            <EventsCard
+                title="Event2"
+                label="1000 hours"
+                
+            />
+
+            <EventsCard
+                title="Event3"
+                label="1000 hours"
+                
+            />
+            <EventsCard
+                title="Event3"
+                label="1000 hours"
+                
+            />
+            </ScrollView>
+        
     );
 };
+
+// const onSearh = {text}
 
 export default ProgramScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "center"
+        padding: 5,
+        backgroundColor: '#fff'
     },
-    text: {
-        fontSize:24,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-    
+    // text: {
+    //     fontSize: 24,
+    //     fontWeight: "bold",
+    //     marginBottom: 16,
+    // }
+
 });
