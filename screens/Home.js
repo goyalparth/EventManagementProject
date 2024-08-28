@@ -1,30 +1,24 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Button, StyleSheet } from 'react-native';
 
-
-
-// Define the Home Screen Component
-const HomeScreen = () => {
-
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>HomeScreen</Text>
-        </View>
-    );
+const HomeScreen = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      <Button 
+        title="Go to Announcements"
+        onPress={() => navigation.navigate('Announcements')}
+      />
+      {/* Other UI elements */}
+    </View>
+  );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    text: {
-        fontSize:24,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-    
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

@@ -8,7 +8,7 @@ const EventsCard = ({ title, label, onNavigate }) => {
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardLabel}>{label}</Text>
       
-      {/* Image for the next icon */}
+      {/* Image for the navigate-next icon */}
       <TouchableOpacity onPress={onNavigate} style={styles.iconContainer}>
         <Image source={require('../images/navigate-next.png')} style={styles.icon} />
       </TouchableOpacity>
