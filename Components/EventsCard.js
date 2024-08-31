@@ -1,33 +1,31 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-// EventCard Component
-const EventsCard = ({ title, label, onNavigate }) => {
+const EventsCard = ({ title, label, onNavigate, style }) => {
   return (
-    <View style={styles.cardBody}>
+    <View style={[styles.cardBody, style]}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardLabel}>{label}</Text>
       
-      {/* Conditionally render the navigate-next icon */}
-      {onNavigate && (
+      {onNavigate ? (
         <TouchableOpacity onPress={onNavigate} style={styles.iconContainer}>
           <Image source={require('../images/navigate-next.png')} style={styles.icon} />
         </TouchableOpacity>
-      )}
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   cardBody: {
-    flex: 1,
-    flexGrow: 1,
     paddingHorizontal: 12,
     marginBottom: 5,
     backgroundColor: '#f8f8f8',
     borderRadius: 10,
     padding: 16,
-    position: 'relative'  // To position the icon on the right side
+    position: 'relative',
+    width: 200, // Ensure cards have a defined width
+    paddingRight: 50, // Add padding to ensure space for the icon
   },
   cardTitle: {
     color: '#000000',
@@ -46,10 +44,8 @@ const styles = StyleSheet.create({
     top: 10,
   },
   icon: {
-    marginTop:10,
     width: 40,
     height: 40,
-    marginRight:20
   },
 });
 

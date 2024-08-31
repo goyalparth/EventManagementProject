@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import EventsCard from '../Components/EventsCard';
-import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = ({ navigation }) => {
   React.useLayoutEffect(() => {
@@ -30,12 +29,14 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleNavigate(item.title, item.label, item.description)}>
-      <EventsCard
-        title={item.title}
-        label={item.label}
-      />
-    </TouchableOpacity>
+    <View style={styles.cardWrapper}>
+      <TouchableOpacity onPress={() => handleNavigate(item.title, item.label, item.description)}>
+        <EventsCard
+          title={item.title}
+          label={item.label}
+        />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -57,8 +58,8 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 50, // Adjust based on header height
   },
   icon: {
     width: 25,
@@ -67,5 +68,9 @@ const styles = StyleSheet.create({
   },
   flatList: {
     paddingHorizontal: 10,
+  },
+  cardWrapper: {
+    marginRight: 10,
+    // Ensure cardWrapper does not cause overflow issues
   },
 });
