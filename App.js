@@ -6,7 +6,8 @@ import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
 import SpeakerScreen from "./screens/Speaker";
 import OrganisersScreen from "./screens/Organisers";
-import AnnouncementsScreen from "./screens/Announcements"; // Import this
+import AnnouncementsScreen from "./screens/Announcements";
+import AnnouncementsHeader from './Components/AnnouncementsHeader'; // Updated import
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -21,14 +22,19 @@ export default function App() {
     );
   };
 
+  const screenOptions = ({ navigation }) => ({
+    headerRight: () => <AnnouncementsHeader navigation={navigation} />,
+  });
+
   const DrawerNavigator = () => (
     <Drawer.Navigator>
       <Drawer.Screen 
         name="Home" 
         component={HomeScreen} 
+        options={screenOptions} 
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
-            e.preventDefault(); // Prevent default navigation
+            e.preventDefault();
             handleNavigationReset(navigation, 'Home');
           },
         })}
@@ -36,6 +42,7 @@ export default function App() {
       <Drawer.Screen 
         name="Program" 
         component={ProgramStack} 
+        options={screenOptions} 
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -46,6 +53,7 @@ export default function App() {
       <Drawer.Screen 
         name="Speaker" 
         component={SpeakerScreen} 
+        options={screenOptions} 
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -56,6 +64,7 @@ export default function App() {
       <Drawer.Screen 
         name="Organisers" 
         component={OrganisersScreen} 
+        options={screenOptions} 
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -70,8 +79,16 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="Announcements" component={AnnouncementsScreen} />
+        <Stack.Screen 
+          name="Drawer" 
+          component={DrawerNavigator} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Announcements" 
+          component={AnnouncementsScreen} 
+          options={screenOptions}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
