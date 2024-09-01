@@ -1,29 +1,112 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+// EventDetailsScreen.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Platform, PermissionsAndroid } from 'react-native';
 import Toast from 'react-native-toast-message';
+import LocalCalendarModalComponent from '../Components/LocalCalendarModalComponent';
+import { addCalendarEvent, removeCalendarEvent } from '../services/LocalCalendarService';
+import { useEventContext } from '../context/EventContext'; // Import the context
 
 const EventDetailsScreen = ({ route }) => {
-  const { title, label, description, speaker } = route.params;
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { title, label, description, speaker, startDate, endDate, id } = route.params;
+  const { toggleFavorite, getEventStatus, setCalendarId } = useEventContext();
+  const [isVisibleCalendars, setIsVisibleCalendars] = useState(false);
+  const [event, setEvent] = useState(null);
 
-  const handleFavoritePress = () => {
-    setIsFavorite(!isFavorite);
-    Toast.show({
-      type: 'success',
-      position: 'bottom',
-      text1: isFavorite ? 'Removed from favorites' : 'Added to favorites',
-      visibilityTime: 2000,
-    });
+  useEffect(() => {
+    requestCalendarPermission();
+  }, []);
+
+  const requestCalendarPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
+          {
+            title: 'Calendar Permission',
+            message: 'This app needs access to your calendar to add events.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Calendar permission granted');
+        } else {
+          console.log('Calendar permission denied');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+  };
+
+  const openLocalCalendarModal = () => setIsVisibleCalendars(true);
+  const closeLocalCalendarModal = () => setIsVisibleCalendars(false);
+
+  const validateDate = (date) => {
+    const parsedDate = new Date(date);
+    return !isNaN(parsedDate.getTime());
+  };
+
+  const saveEvent = async (calendar) => {
+    if (!event.startDate || !event.endDate) {
+      console.error('Event dates are missing');
+      return;
+    }
+
+    const calendarId = await addCalendarEvent(event, calendar);
+    setCalendarId(id, calendarId);
+    closeLocalCalendarModal();
+  };
+
+  const handleFavoritePress = async () => {
+    const { isFavorite, calendarId } = getEventStatus(id);
+
+    if (isFavorite) {
+      toggleFavorite(id);
+      if (calendarId) {
+        await removeCalendarEvent(calendarId);
+        Toast.show({
+          type: 'info',
+          position: 'bottom',
+          text1: 'Removed from favorites and calendar',
+          visibilityTime: 2000,
+        });
+        setCalendarId(id, null);
+      }
+    } else {
+      toggleFavorite(id);
+      const eventObj = {
+        title,
+        startDate: startDate ? new Date(startDate).toISOString() : null,
+        endDate: endDate ? new Date(endDate).toISOString() : null,
+        description,
+      };
+      setEvent(eventObj);
+      openLocalCalendarModal();
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Added to favorites',
+        visibilityTime: 2000,
+      });
+    }
   };
 
   return (
     <View style={styles.container}>
+      <LocalCalendarModalComponent
+        isVisible={isVisibleCalendars}
+        closeModal={closeLocalCalendarModal}
+        handleCalendarSelected={saveEvent}
+        label={'Select a calendar'}
+      />
       <View style={styles.card}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{title}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <Image
-              source={isFavorite ? require('../images/added_favourite.jpg') : require('../images/favourite.png')}
+              source={getEventStatus(id).isFavorite ? require('../images/added-favorite.jpg') : require('../images/favorite.png')}
               style={styles.favoriteIcon}
             />
           </TouchableOpacity>
@@ -48,7 +131,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    padding: 0,
+    padding: 20,
   },
   card: {
     width: '100%',
@@ -87,8 +170,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   favoriteIcon: {
-    width: 24,
-    height: 24,
+    width: 30,
+    height: 30,
   },
 });
 

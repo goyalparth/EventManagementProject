@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import EventsCard from '../Components/EventsCard';
+import { events } from '../data/EventData'; // Import the events data
 
 const HomeScreen = ({ navigation }) => {
   React.useLayoutEffect(() => {
@@ -16,21 +17,13 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const events = [
-    { id: '1', title: 'Event1', label: '0810 hours', description: 'Event 1 description' },
-    { id: '2', title: 'Event2', label: '1000 hours', description: 'Event 2 description' },
-    { id: '3', title: 'Event3', label: '1100 hours', description: 'Event 3 description' },
-    { id: '4', title: 'Event4', label: '1200 hours', description: 'Event 4 description' },
-    { id: '5', title: 'Event5', label: '1400 hours', description: 'Event 5 description' },
-  ];
-
-  const handleNavigate = (title, label, description) => {
-    navigation.navigate('EventDetails', { title, label, description });
+  const handleNavigate = (title, label, description, startDate, endDate) => {
+    navigation.navigate('EventDetails', { title, label, description, startDate, endDate });
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.cardWrapper}>
-      <TouchableOpacity onPress={() => handleNavigate(item.title, item.label, item.description)}>
+      <TouchableOpacity onPress={() => handleNavigate(item.title, item.label, item.description, item.startDate, item.endDate)}>
         <EventsCard
           title={item.title}
           label={item.label}
@@ -71,6 +64,5 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginRight: 10,
-    // Ensure cardWrapper does not cause overflow issues
   },
 });
