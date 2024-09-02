@@ -1,18 +1,25 @@
 import 'react-native-gesture-handler';
+import React from 'react';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
+import Toast from 'react-native-toast-message';
 import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
 import SpeakerScreen from "./screens/Speaker";
 import OrganisersScreen from "./screens/Organisers";
 import AnnouncementsScreen from "./screens/Announcements";
+import EventDetailsScreen from './screens/EventDetails';
+import AnnouncementsHeader from './Components/AnnouncementsHeader';
+import { FavoriteProvider } from './context/FavoriteContext';
+import { EventProvider } from './context/EventContext';
 import CommitteeScreen from './screens/Committee'; // Import this
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 export default function App() {
+  // Function to handle navigation reset
   const handleNavigationReset = (navigation, routeName) => {
     navigation.dispatch(
       CommonActions.reset({
@@ -22,21 +29,29 @@ export default function App() {
     );
   };
 
+  // Options for screens, including the custom header right button
+  const screenOptions = ({ navigation }) => ({
+    headerRight: () => <AnnouncementsHeader navigation={navigation} />,
+  });
+
+  // Drawer Navigator including all screens
   const DrawerNavigator = () => (
     <Drawer.Navigator>
-      <Drawer.Screen 
-        name="Home" 
-        component={HomeScreen} 
+      <Drawer.Screen
+        name="Home"
+        component={HomeScreen}
+        options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
-            e.preventDefault(); // Prevent default navigation
+            e.preventDefault();
             handleNavigationReset(navigation, 'Home');
           },
         })}
       />
-      <Drawer.Screen 
-        name="Program" 
-        component={ProgramStack} 
+      <Drawer.Screen
+        name="Program"
+        component={ProgramStack}
+        options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -44,9 +59,10 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen 
-        name="Speaker" 
-        component={SpeakerScreen} 
+      <Drawer.Screen
+        name="Speaker"
+        component={SpeakerScreen}
+        options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -64,9 +80,10 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen 
-        name="Organisers" 
-        component={OrganisersScreen} 
+      <Drawer.Screen
+        name="Organisers"
+        component={OrganisersScreen}
+        options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -74,16 +91,30 @@ export default function App() {
           },
         })}
       />
-      {/* AnnouncementsScreen is removed from the Drawer */}
     </Drawer.Navigator>
   );
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="Announcements" component={AnnouncementsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <EventProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Drawer"
+            component={DrawerNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Announcements"
+            component={AnnouncementsScreen}
+            options={screenOptions}
+          />
+          <Stack.Screen
+            name="EventDetails"
+            component={EventDetailsScreen}
+          />
+        </Stack.Navigator>
+        <Toast ref={(ref) => Toast.setRef(ref)} />
+      </NavigationContainer>
+    </EventProvider>
   );
 }

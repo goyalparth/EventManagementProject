@@ -1,69 +1,51 @@
-import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import EventsCard from '../Components/EventsCard';
+import { events as initialEvents } from '../data/EventData'; // Import the events data
 import { useNavigation } from '@react-navigation/native';
 
 const ProgramScreen = () => {
   const navigation = useNavigation();
+  const [events, setEvents] = useState(initialEvents);
 
-  const handleNavigate = (title, label, description) => {
-    navigation.navigate('EventDetails', { title, label, description });
+  const handleNavigate = (title, label, description, startDate, endDate) => {
+    navigation.navigate('EventDetails', { title, label, description, startDate, endDate });
+  };
+
+  const toggleFavorite = (id) => {
+    setEvents(events.map(event => 
+      event.id === id 
+        ? { ...event, isFavorite: !event.isFavorite } 
+        : event
+    ));
   };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
-      <EventsCard
-        title="Event1"
-        label="0810 hours"
-        onNavigate={() => handleNavigate('Event1', '0810 hours',"Event 1 description")}
-      />
-      <EventsCard
-        title="Event2"
-        label="1000 hours"
-        onNavigate={() => handleNavigate('Event2', '1000 hours',"Event 2 description")}
-      />
-      <EventsCard
-        title="Event3"
-        label="1100 hours"
-        onNavigate={() => handleNavigate('Event3', '1100 hours',"Event 3 description")}
-      />
-      <EventsCard
-        title="Event1"
-        label="0810 hours"
-        onNavigate={() => handleNavigate('Event1', '0810 hours',"Event 1 description")}
-      />
-      <EventsCard
-        title="Event2"
-        label="1000 hours"
-        onNavigate={() => handleNavigate('Event2', '1000 hours',"Event 2 description")}
-      />
-      <EventsCard
-        title="Event3"
-        label="1100 hours"
-        onNavigate={() => handleNavigate('Event3', '1100 hours',"Event 3 description")}
-      />
-      <EventsCard
-        title="Event1"
-        label="0810 hours"
-        onNavigate={() => handleNavigate('Event1', '0810 hours',"Event 1 description")}
-      />
-      <EventsCard
-        title="Event2"
-        label="1000 hours"
-        onNavigate={() => handleNavigate('Event2', '1000 hours',"Event 2 description")}
-      />
-      <EventsCard
-        title="Event3"
-        label="1100 hours"
-        onNavigate={() => handleNavigate('Event3', '1100 hours',"Event 3 description")}
-      />
+      <View style={styles.cardContainer}>
+        {events.map((event) => (
+          <EventsCard
+            key={event.id}
+            title={event.title}
+            label={event.label}
+            isFavorite={event.isFavorite}
+            onFavoriteToggle={() => toggleFavorite(event.id)}
+            onNavigate={() => handleNavigate(event.title, event.label, event.description, event.startDate, event.endDate)}
+          />
+        ))}
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: {
-    padding: 10,
+    paddingHorizontal: 10,
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
   },
 });
 
