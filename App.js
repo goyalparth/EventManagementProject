@@ -13,6 +13,7 @@ import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
+import CommitteeScreen from './screens/Committee'; // Import this
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -69,6 +70,16 @@ export default function App() {
           },
         })}
       />
+      <Drawer.Screen 
+        name="Committee" 
+        component={CommitteeScreen} 
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'Committee');
+          },
+        })}
+      />
       <Drawer.Screen
         name="Organisers"
         component={OrganisersScreen}
@@ -104,6 +115,6 @@ export default function App() {
         </Stack.Navigator>
         <Toast ref={(ref) => Toast.setRef(ref)} />
       </NavigationContainer>
-      </EventProvider>
+    </EventProvider>
   );
 }
