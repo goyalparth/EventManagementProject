@@ -6,7 +6,8 @@ import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
 import SpeakerScreen from "./screens/Speaker";
 import OrganisersScreen from "./screens/Organisers";
-import AnnouncementsScreen from "./screens/Announcements"; // Import this
+import AnnouncementsScreen from "./screens/Announcements";
+import CommitteeScreen from './screens/Committee'; // Import this
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -50,6 +51,16 @@ export default function App() {
           drawerItemPress: (e) => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Speaker');
+          },
+        })}
+      />
+      <Drawer.Screen 
+        name="Committee" 
+        component={CommitteeScreen} 
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'Committee');
           },
         })}
       />
