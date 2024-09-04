@@ -1,89 +1,45 @@
-// EventDetailsScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Platform, PermissionsAndroid } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Toast from 'react-native-toast-message';
-import LocalCalendarModalComponent from '../Components/LocalCalendarModalComponent';
-import { addCalendarEvent, removeCalendarEvent } from '../services/LocalCalendarService';
-import { useEventContext } from '../context/EventContext'; // Import the context
+import { useEventContext } from '../context/EventContext';
+import { database } from '../firebaseConfig'; // Import Firebase configuration
+import { ref, onValue } from 'firebase/database'; // Firebase methods for fetching data
 
 const EventDetailsScreen = ({ route }) => {
-  const { title, label, description, speaker, startDate, endDate, id } = route.params;
+  const { id } = route.params; // Get the event id from the route params
   const { toggleFavorite, getEventStatus, setCalendarId } = useEventContext();
-  const [isVisibleCalendars, setIsVisibleCalendars] = useState(false);
-  const [event, setEvent] = useState(null);
+  const [event, setEvent] = useState(null); // Store the event details
 
   useEffect(() => {
-    requestCalendarPermission();
-  }, []);
+    console.log('Event ID:', id); // Print the event ID to the console for debugging
 
-  const requestCalendarPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
-          {
-            title: 'Calendar Permission',
-            message: 'This app needs access to your calendar to add events.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Calendar permission granted');
-        } else {
-          console.log('Calendar permission denied');
-        }
-      } catch (err) {
-        console.warn(err);
+    // Fetch the event details from Firebase using the event ID
+    const eventRef = ref(database, `events/${id}`);
+    const unsubscribe = onValue(eventRef, (snapshot) => {
+      const eventData = snapshot.val();
+      if (eventData) {
+        setEvent(eventData); // Update the state with the event details
+      } else {
+        console.log('No event found for ID:', id);
       }
-    }
-  };
+    });
 
-  const openLocalCalendarModal = () => setIsVisibleCalendars(true);
-  const closeLocalCalendarModal = () => setIsVisibleCalendars(false);
-
-  const validateDate = (date) => {
-    const parsedDate = new Date(date);
-    return !isNaN(parsedDate.getTime());
-  };
-
-  const saveEvent = async (calendar) => {
-    if (!event.startDate || !event.endDate) {
-      console.error('Event dates are missing');
-      return;
-    }
-
-    const calendarId = await addCalendarEvent(event, calendar);
-    setCalendarId(id, calendarId);
-    closeLocalCalendarModal();
-  };
+    // Cleanup listener when component unmounts
+    return () => unsubscribe();
+  }, [id]);
 
   const handleFavoritePress = async () => {
     const { isFavorite, calendarId } = getEventStatus(id);
-
-    if (isFavorite) {
-      toggleFavorite(id);
-      if (calendarId) {
-        await removeCalendarEvent(calendarId);
-        Toast.show({
-          type: 'info',
-          position: 'bottom',
-          text1: 'Removed from favorites and calendar',
-          visibilityTime: 2000,
-        });
-        setCalendarId(id, null);
-      }
+    toggleFavorite(id);
+    if (isFavorite && calendarId) {
+      Toast.show({
+        type: 'info',
+        position: 'bottom',
+        text1: 'Removed from favorites and calendar',
+        visibilityTime: 2000,
+      });
+      setCalendarId(id, null);
     } else {
-      toggleFavorite(id);
-      const eventObj = {
-        title,
-        startDate: startDate ? new Date(startDate).toISOString() : null,
-        endDate: endDate ? new Date(endDate).toISOString() : null,
-        description,
-      };
-      setEvent(eventObj);
-      openLocalCalendarModal();
       Toast.show({
         type: 'success',
         position: 'bottom',
@@ -93,17 +49,19 @@ const EventDetailsScreen = ({ route }) => {
     }
   };
 
+  if (!event) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading event details...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <LocalCalendarModalComponent
-        isVisible={isVisibleCalendars}
-        closeModal={closeLocalCalendarModal}
-        handleCalendarSelected={saveEvent}
-        label={'Select a calendar'}
-      />
       <View style={styles.card}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>{event.title}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <Image
               source={getEventStatus(id).isFavorite ? require('../images/added-favorite.jpg') : require('../images/favorite.png')}
@@ -113,13 +71,28 @@ const EventDetailsScreen = ({ route }) => {
         </View>
       </View>
       <View style={styles.card}>
-        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.label}>Session Speaker: {event.sessionSpeaker}</Text>
       </View>
       <View style={styles.card}>
-        <Text style={styles.speaker}>{speaker}</Text>
+        <Text style={styles.label}>Location: {event.location}</Text>
       </View>
       <View style={styles.card}>
-        <Text style={styles.description}>{description}</Text>
+        <Text style={styles.label}>Address: {event.address}</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>Date: {event.date}</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>Start Time: {event.startTime}</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>End Time: {event.endTime}</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>Paper Name: {event.paperName}</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>Paper URL: {event.paperUrl}</Text>
       </View>
       <Toast ref={(ref) => Toast.setRef(ref)} />
     </View>
@@ -132,6 +105,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   card: {
     width: '100%',
@@ -158,16 +136,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     color: 'gray',
-  },
-  speaker: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  description: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: "center",
   },
   favoriteIcon: {
     width: 30,

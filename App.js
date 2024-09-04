@@ -13,7 +13,8 @@ import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
-import CommitteeScreen from './screens/Committee'; // Import this
+import CommitteeScreen from './screens/Committee'; 
+import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -111,6 +112,11 @@ export default function App() {
           <Stack.Screen
             name="EventDetails"
             component={EventDetailsScreen}
+          />
+          <Stack.Screen
+            name="AddEvent" // Add the AddEvent screen to the stack navigator
+            component={AddEventScreen}
+            options={{ title: 'Add New Event' }}
           />
         </Stack.Navigator>
         <Toast ref={(ref) => Toast.setRef(ref)} />
