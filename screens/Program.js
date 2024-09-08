@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image, Alert } from 'react-native';
+import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler'; // Import Swipeable
 import EventsCard from '../Components/EventsCard';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { database } from '../firebaseConfig'; // Import Firebase configuration
-import { ref, onValue } from 'firebase/database'; // Firebase methods
+import { ref, onValue, remove } from 'firebase/database'; // Firebase methods
 
 const ProgramScreen = () => {
   const navigation = useNavigation();
@@ -100,21 +101,33 @@ const ProgramScreen = () => {
     navigation.navigate('EventDetails', { id, paperName, sessionSpeaker, address, date, endTime });
   };
 
-  const toggleFavorite = (id) => {
-    setFilteredEvents(filteredEvents.map(event => 
-      event.id === id 
-        ? { ...event, isFavorite: !event.isFavorite } 
-        : event
-    ));
+  // Handle event deletion
+  const handleDelete = (id) => {
+    Alert.alert(
+      'Delete Event',
+      'Are you sure you want to delete this event?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: async () => {
+          const eventRef = ref(database, `events/${id}`);
+          await remove(eventRef); // Remove event from Firebase
+          setFilteredEvents(filteredEvents.filter(event => event.id !== id)); // Remove from the filtered list
+        }, style: 'destructive' }
+      ]
+    );
   };
 
-  // Handle navigation to AddEvent screen
-  const handleAddEvent = () => {
-    navigation.navigate('AddEvent');
-  };
+  // Render delete action for Swipeable
+  const renderRightActions = (id) => (
+    <View style={styles.deleteButtonContainer}>
+      <TouchableOpacity onPress={() => handleDelete(id)}>
+        <Text style={styles.deleteButtonText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <View style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         {/* Conference Program Heading */}
         <View style={styles.headerContainer}>
@@ -146,14 +159,21 @@ const ProgramScreen = () => {
           <View style={styles.eventList}>
             {filteredEvents.length > 0 ? (
               filteredEvents.map((event) => (
-                <EventsCard style={styles.eventSubList}
+                <Swipeable
                   key={event.id}
-                  title={event.title} // Use paperName from the database
-                  label={event.startTime + " - " + event.endTime} // Use startTime and endTime from the database
-                  isFavorite={event.isFavorite}
-                  onFavoriteToggle={() => toggleFavorite(event.id)}
-                  onNavigate={() => handleNavigate(event.id, event.paperName, event.sessionSpeaker, event.address, event.date, event.endTime)} // Pass event details
-                />
+                  renderRightActions={() => renderRightActions(event.id)} // Show delete on swipe
+                >
+                  <TouchableOpacity
+                    onPress={() => handleNavigate(event.id, event.paperName, event.sessionSpeaker, event.address, event.date, event.endTime)} // Navigate to event details
+                  >
+                    <EventsCard style={styles.eventSubList}
+                      title={event.title} // Use paperName from the database
+                      label={event.startTime + " - " + event.endTime} // Use startTime and endTime from the database
+                      isFavorite={event.isFavorite}
+                      onFavoriteToggle={() => toggleFavorite(event.id)}
+                    />
+                  </TouchableOpacity>
+                </Swipeable>
               ))
             ) : (
               <Text style={styles.noEventsText}>No events for this date</Text>
@@ -163,13 +183,10 @@ const ProgramScreen = () => {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={handleAddEvent}>
-        <Image
-          source={require('../images/add_event.png')}
-          style={styles.icon}/>
-        {/* <Text style={styles.fabText}>+</Text> Replace this with an image later */}
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddEvent')}>
+        <Image source={require('../images/add_event.png')} style={styles.icon} />
       </TouchableOpacity>
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
@@ -178,12 +195,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 30,
     height: '100%',
-    backgroundColor: '#304067', // Main background color
+    backgroundColor: '#304067', // Same color as your original design
   },
   cardContainer: {
-    backgroundColor: '#FCFAF8', // Card background
-    flex: 1, // Match the parent height
-    width: '100%', // Match the parent width
+    backgroundColor: '#FCFAF8',
+    flex: 1,
+    width: '100%',
     borderRadius: 15,
     padding: 20,
     marginBottom: 10,
@@ -196,16 +213,11 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FCFAF8', // Header text color
+    color: '#FCFAF8', // Same header text color
   },
   monthContainer: {
     paddingVertical: 10,
     alignItems: 'center',
-  },
-  monthText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#304067', // Month text color
   },
   dateSelector: {
     flexDirection: 'row',
@@ -245,11 +257,24 @@ const styles = StyleSheet.create({
     color: '#304067',
     fontSize: 16,
   },
+  deleteButtonContainer: {
+    justifyContent: 'center',
+    backgroundColor: '#FF0000',
+    marginTop:15,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
   fab: {
     position: 'absolute',
     bottom: 40,
     right: 30,
-    backgroundColor: '#304067', // Floating button background color
+    backgroundColor: '#304067', // Same color as your original design
     borderRadius: 50,
     width: 50,
     height: 50,
@@ -260,7 +285,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
-  }
+  },
 });
 
 export default ProgramScreen;

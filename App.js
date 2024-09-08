@@ -37,7 +37,12 @@ export default function App() {
       backgroundColor: '#304067', // Set the background color of the top bar (toolbar)
     },
     headerTintColor: '#FCFAF8', // Set the color of the icons and buttons in the toolbar
-    headerTitle: '', // Optionally remove the title
+    headerTitle: 'ACIS', // Optionally remove the title
+    headerTitleAlign: 'center',
+    headerTitleStyle: {
+      fontSize: 24, // Increase header title font size
+      fontWeight: 'bold', // Make the header title bold
+    },
   });
 
   // Drawer Navigator including all screens
@@ -97,6 +102,17 @@ export default function App() {
           },
         })}
       />
+      {/* <Drawer.Screen
+        name="AddEvent" // Add the AddEvent screen to the drawer
+        component={AddEventScreen}
+        options={screenOptions}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'AddEvent');
+          },
+        })}
+      /> */}
     </Drawer.Navigator>
   );
 

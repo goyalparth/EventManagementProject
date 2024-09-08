@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { database } from '../firebaseConfig'; // Import database
 import { ref, push } from 'firebase/database';
-import ProgramScreen from './Program';
 
 const AddEvent = ({ navigation }) => {
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+  const [date, setDate] = useState(null); // Set initial state to null for placeholders
+  const [startTime, setStartTime] = useState(null); // Set initial state to null for placeholders
+  const [endTime, setEndTime] = useState(null); // Set initial state to null for placeholders
   const [sessionSpeaker, setSessionSpeaker] = useState('');
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
-  const [paperName1, setPaperName1] = useState('');
-  const [paperUrl1, setPaperUrl1] = useState('');
-  const [paperName2, setPaperName2] = useState('');
-  const [paperUrl2, setPaperUrl2] = useState('');
+  const [paperCount, setPaperCount] = useState(1); // State for the number of papers
+  const [paperDetails, setPaperDetails] = useState({
+    paper1: { name: '', url: '' },
+    paper2: { name: '', url: '' },
+    paper3: { name: '', url: '' },
+    paper4: { name: '', url: '' },
+  });
 
-  // State to show or hide the Date/Time picker
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
@@ -36,58 +38,66 @@ const AddEvent = ({ navigation }) => {
     return `${hours}:${minutes}`;
   };
 
-  const onChangeDate = (event, selectedDate) => {
-    setShowDatePicker(false);
-    if (selectedDate) setDate(selectedDate);
-  };
+  // Validation function to check if any field is empty
+  const validateForm = () => {
+    if (!title || !date || !startTime || !endTime || !sessionSpeaker || !location || !address) {
+      return false;
+    }
 
-  const onChangeStartTime = (event, selectedTime) => {
-    setShowStartTimePicker(false);
-    if (selectedTime) setStartTime(selectedTime);
-  };
-
-  const onChangeEndTime = (event, selectedTime) => {
-    setShowEndTimePicker(false);
-    if (selectedTime) setEndTime(selectedTime);
+    for (let i = 1; i <= paperCount; i++) {
+      if (!paperDetails[`paper${i}`].name || !paperDetails[`paper${i}`].url) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const addEvent = () => {
+    // Check if the form is valid
+    if (!validateForm()) {
+      Alert.alert('Error', 'Please fill out all fields before adding the event.');
+      return;
+    }
+
     const eventRef = ref(database, 'events');
     const newEvent = {
       title,
-      date: formatDate(date),
-      startTime: formatTime(startTime),
-      endTime: formatTime(endTime),
+      date: date ? formatDate(date) : '', // Check if date is selected
+      startTime: startTime ? formatTime(startTime) : '', // Check if start time is selected
+      endTime: endTime ? formatTime(endTime) : '', // Check if end time is selected
       sessionSpeaker,
       location,
       address,
-      paper1: {
-        name: paperName1,
-        url: paperUrl1
-      },
-      paper2: {
-        name: paperName2,
-        url: paperUrl2
-      }
+      paper1: paperDetails.paper1,
+      paper2: paperDetails.paper2,
+      paper3: paperDetails.paper3,
+      paper4: paperDetails.paper4,
     };
-    
-    // const cancelButton = () => {
-    //   navigation.goBack();
-    // }
+
     push(eventRef, newEvent)
       .then(() => {
-        alert('Event added successfully!');
+        Alert.alert('Success', 'Event added successfully!');
         navigation.goBack(); // Navigate back to ProgramScreen
       })
       .catch((error) => {
-        alert('Error adding event: ', error);
+        Alert.alert('Error', `Error adding event: ${error.message}`);
       });
+  };
+
+  const handlePaperDetailsChange = (paperNumber, field, value) => {
+    setPaperDetails((prevDetails) => ({
+      ...prevDetails,
+      [`paper${paperNumber}`]: {
+        ...prevDetails[`paper${paperNumber}`],
+        [field]: value,
+      },
+    }));
   };
 
   return (
     <View style={styles.main}>
       <View style={styles.headerContainer}>
-      <Text style={styles.headerText}>Create New Conference</Text>
+        <Text style={styles.headerText}>Create New Conference</Text>
       </View>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -100,116 +110,131 @@ const AddEvent = ({ navigation }) => {
             style={styles.input} 
           />
 
-        <Text style={styles.label}>Location</Text>
-        <TextInput 
-          placeholder="Select Event Location"
-          placeholderTextColor="#888888"
-          value={location} 
-          onChangeText={setLocation} 
-          style={styles.input} 
-        />
-
-        <Text style={styles.label}>Address</Text>
-        <TextInput 
-          placeholder="eg: Building 8, Room 10"
-          placeholderTextColor="#888888"
-          value={address} 
-          onChangeText={setAddress} 
-          style={styles.input} 
-        />
-
-        <Text style={styles.label}>Date</Text>
-        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePicker}>
-          <Text style={styles.pickerText}>
-            {formatDate(date)}
-          </Text>
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="default"
-            onChange={onChangeDate}
+          <Text style={styles.label}>Location</Text>
+          <TextInput 
+            placeholder="Select Event Location"
+            placeholderTextColor="#888888"
+            value={location} 
+            onChangeText={setLocation} 
+            style={styles.input} 
           />
-        )}
 
-        <Text style={styles.label}>Start Time</Text>
-        <TouchableOpacity onPress={() => setShowStartTimePicker(true)} style={styles.datePicker}>
-          <Text style={styles.pickerText}>
-            {formatTime(startTime)}
-          </Text>
-        </TouchableOpacity>
-        {showStartTimePicker && (
-          <DateTimePicker
-            value={startTime}
-            mode="time"
-            display="default"
-            onChange={onChangeStartTime}
+          <Text style={styles.label}>Address</Text>
+          <TextInput 
+            placeholder="eg: Building 8, Room 10"
+            placeholderTextColor="#888888"
+            value={address} 
+            onChangeText={setAddress} 
+            style={styles.input} 
           />
-        )}
 
-        <Text style={styles.label}>End Time</Text>
-        <TouchableOpacity onPress={() => setShowEndTimePicker(true)} style={styles.datePicker}>
-          <Text style={styles.pickerText}>
-            {formatTime(endTime)}
-          </Text>
-        </TouchableOpacity>
-        {showEndTimePicker && (
-          <DateTimePicker
-            value={endTime}
-            mode="time"
-            display="default"
-            onChange={onChangeEndTime}
+          <Text style={styles.label}>Date</Text>
+          <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePicker}>
+            <Text style={[styles.pickerText, !date && styles.placeholderText]}>
+              {date ? formatDate(date) : 'Enter Date'}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={date || new Date()} // Set initial value to current date
+              mode="date"
+              display="spinner" // Alert dialog style for Android
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) setDate(selectedDate);
+              }}
+            />
+          )}
+
+          <Text style={styles.label}>Start Time</Text>
+          <TouchableOpacity onPress={() => setShowStartTimePicker(true)} style={styles.datePicker}>
+            <Text style={[styles.pickerText, !startTime && styles.placeholderText]}>
+              {startTime ? formatTime(startTime) : 'Enter Start Time'}
+            </Text>
+          </TouchableOpacity>
+          {showStartTimePicker && (
+            <DateTimePicker
+              value={startTime || new Date()} // Set initial value to current time
+              mode="time"
+              display="spinner"
+              onChange={(event, selectedTime) => {
+                setShowStartTimePicker(false);
+                if (selectedTime) setStartTime(selectedTime);
+              }}
+            />
+          )}
+
+          <Text style={styles.label}>End Time</Text>
+          <TouchableOpacity onPress={() => setShowEndTimePicker(true)} style={styles.datePicker}>
+            <Text style={[styles.pickerText, !endTime && styles.placeholderText]}>
+              {endTime ? formatTime(endTime) : 'Enter End Time'}
+            </Text>
+          </TouchableOpacity>
+          {showEndTimePicker && (
+            <DateTimePicker
+              value={endTime || new Date()} // Set initial value to current time
+              mode="time"
+              display="spinner"
+              onChange={(event, selectedTime) => {
+                setShowEndTimePicker(false);
+                if (selectedTime) setEndTime(selectedTime);
+              }}
+            />
+          )}
+
+          <Text style={styles.label}>Session Chair</Text>
+          <TextInput 
+            placeholder="Enter the Session Chair's Name"
+            placeholderTextColor="#888888"
+            value={sessionSpeaker} 
+            onChangeText={setSessionSpeaker} 
+            style={styles.input} 
           />
-        )}
 
-        <Text style={styles.label}>Session Chair</Text>
-        <TextInput 
-          placeholder="Enter the Session Chair's Name"
-          placeholderTextColor="#888888"
-          value={sessionSpeaker} 
-          onChangeText={setSessionSpeaker} 
-          style={styles.input} 
-        />
+          {/* Paper Count Picker */}
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>Number of Papers</Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={paperCount}
+                onValueChange={(itemValue) => setPaperCount(itemValue)}
+                style={{ height: 50, width: 120 }} // Adjust the size
+              >
+                <Picker.Item label="1" value={1} />
+                <Picker.Item label="2" value={2} />
+                <Picker.Item label="3" value={3} />
+                <Picker.Item label="4" value={4} />
+              </Picker>
+            </View>
+          </View>
 
-        <Text style={styles.label}>Paper 1 Details</Text>
-        <TextInput 
-          placeholder="Enter Paper Name"
-          placeholderTextColor="#888888"
-          value={paperName1} 
-          onChangeText={setPaperName1} 
-          style={styles.input} 
-        />
-        <TextInput 
-          placeholder="Enter Paper URL"
-          placeholderTextColor="#888888"
-          value={paperUrl1} 
-          onChangeText={setPaperUrl1} 
-          style={styles.input} 
-        />
+          {/* Render Paper Details based on paperCount */}
+          {Array.from({ length: paperCount }).map((_, index) => (
+            <View key={index}>
+              <Text style={styles.label}>Paper {index + 1} Details</Text>
+              <TextInput
+                placeholder="Enter Paper Name"
+                placeholderTextColor="#888888"
+                value={paperDetails[`paper${index + 1}`].name}
+                onChangeText={(value) => handlePaperDetailsChange(index + 1, 'name', value)}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Enter Paper URL"
+                placeholderTextColor="#888888"
+                value={paperDetails[`paper${index + 1}`].url}
+                onChangeText={(value) => handlePaperDetailsChange(index + 1, 'url', value)}
+                style={styles.input}
+              />
+            </View>
+          ))}
 
-        <Text style={styles.label}>Paper 2 Details</Text>
-        <TextInput 
-          placeholder="Enter Paper Name"
-          placeholderTextColor="#888888"
-          value={paperName2} 
-          onChangeText={setPaperName2} 
-          style={styles.input} 
-        />
-        <TextInput 
-          placeholder="Enter Paper URL"
-          placeholderTextColor="#888888"
-          value={paperUrl2} 
-          onChangeText={setPaperUrl2} 
-          style={styles.input} 
-        />
-
-        <TouchableOpacity onPress={addEvent} style={styles.addButton}>
-          <Text style={styles.addButtonText}>ADD</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={navigation.goBack} style={styles.cancelButton}>
-          <Text style={styles.addButtonText}>CANCEL</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={addEvent} style={styles.addButton}>
+            <Text style={styles.addButtonText}>ADD</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigation.goBack} style={styles.cancelButton}>
+            <Text style={styles.addButtonText}>CANCEL</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </View>
@@ -234,8 +259,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20, // Ensure there's space at the bottom to scroll
   },
   container: {
-    backgroundColor: '#FCFAF8', // Card background
-    // flex: 1, // Match the parent height
+    backgroundColor: '#F9F2E7', // Card background
     width: '100%', // Match the parent width
     borderRadius: 20,
     padding: 20,
@@ -247,11 +271,16 @@ const styles = StyleSheet.create({
     color: '#000000', // Black color for the headings
     marginBottom: 8,
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   input: {
     height: 50,
     borderColor: '#E8E8E8',
     borderWidth: 1,
-    backgroundColor: '#F9F2E7', // Light card background
+    backgroundColor: 'white', // Light card background
     borderRadius: 10,
     marginBottom: 16,
     paddingHorizontal: 10,
@@ -266,7 +295,7 @@ const styles = StyleSheet.create({
   datePicker: {
     height: 50,
     justifyContent: 'center',
-    backgroundColor: '#F9F2E7', // Light card background
+    backgroundColor: 'white', // Light card background
     borderRadius: 10,
     borderColor: '#E8E8E8',
     borderWidth: 1,
@@ -282,6 +311,9 @@ const styles = StyleSheet.create({
     color: '#304067',
     fontSize: 16,
   },
+  placeholderText: {
+    color: '#888888', // Placeholder text color
+  },
   addButton: {
     backgroundColor: '#304067', // Dark blue button background
     paddingVertical: 12,
@@ -295,12 +327,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: '#da5e5a', // Dark blue button background
+    backgroundColor: '#da5e5a', // Cancel button background
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 16,
-  }, 
+  },
+  picker: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginBottom: 16,
+    borderColor: '#E8E8E8',
+    borderWidth: 1,
+  },
 });
 
 export default AddEvent;
