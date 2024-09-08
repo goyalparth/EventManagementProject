@@ -6,7 +6,7 @@ const AnnouncementsHeader = ({ navigation }) => {
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={() => navigation.navigate('Announcements')}>
         <Image
-          source={require('../images/announcement-icon.jpg')}
+          source={require('../images/announcement-icon.png')}
           style={styles.icon}
         />
       </TouchableOpacity>

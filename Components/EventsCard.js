@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     backgroundColor: '#f8f8f8',
     borderRadius: 10,
-    padding: 16,
+    padding: 12,
     position: 'relative',
     width: 200, // Ensure cards have a defined width
     paddingRight: 50, // Add padding to ensure space for the icon
@@ -41,11 +41,11 @@ const styles = StyleSheet.create({
   iconContainer: {
     position: 'absolute',
     right: 10,
-    top: 10,
+    top: 32,
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 25,
+    height: 25,
   },
 });
 

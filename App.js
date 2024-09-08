@@ -33,6 +33,11 @@ export default function App() {
   // Options for screens, including the custom header right button
   const screenOptions = ({ navigation }) => ({
     headerRight: () => <AnnouncementsHeader navigation={navigation} />,
+    headerStyle: {
+      backgroundColor: '#304067', // Set the background color of the top bar (toolbar)
+    },
+    headerTintColor: '#FCFAF8', // Set the color of the icons and buttons in the toolbar
+    headerTitle: '', // Optionally remove the title
   });
 
   // Drawer Navigator including all screens
@@ -102,21 +107,28 @@ export default function App() {
           <Stack.Screen
             name="Drawer"
             component={DrawerNavigator}
-            options={{ headerShown: false }}
+            options={{ headerShown: false }} // Hide the header for the drawer screen
           />
           <Stack.Screen
             name="Announcements"
             component={AnnouncementsScreen}
-            options={screenOptions}
+            options={screenOptions} // Apply the global toolbar styling here
           />
           <Stack.Screen
             name="EventDetails"
             component={EventDetailsScreen}
+            options={screenOptions} // Apply the same global screen options here
           />
           <Stack.Screen
-            name="AddEvent" // Add the AddEvent screen to the stack navigator
+            name="AddEvent"
             component={AddEventScreen}
-            options={{ title: 'Add New Event' }}
+            options={{
+              headerStyle: {
+                backgroundColor: '#304067', // Set the toolbar background color
+              },
+              headerTintColor: '#FCFAF8', // Set the icon color
+              headerTitle: '', // Optionally remove the title for AddEvent screen
+            }}
           />
         </Stack.Navigator>
         <Toast ref={(ref) => Toast.setRef(ref)} />

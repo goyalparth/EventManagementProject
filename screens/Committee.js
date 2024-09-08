@@ -186,14 +186,10 @@ const committeeData = [
           university: 'University of Canberra',
           universityUrl: 'https://acis.aaisnet.org/acis2024/wp-content/uploads/2024/03/zeena-jamal-lsamarrai.png',
           imageUrl: 'https://acis.aaisnet.org/acis2024/wp-content/uploads/2024/03/zeena-jamal-lsamarrai.png',
-       
-
         },
       ],
     },
-  ];
-
-  
+];
 
 const CommitteeScreen = () => {
   const handlePress = (url) => {
@@ -201,7 +197,7 @@ const CommitteeScreen = () => {
   };
 
   return (
-        <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}>
       {committeeData.map((section, index) => (
         <View key={index}>
           <Text style={styles.heading}>{section.position}</Text>
@@ -259,6 +255,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#6c757d',
   },
   university: {
     fontSize: 14,
