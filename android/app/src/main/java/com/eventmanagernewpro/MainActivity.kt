@@ -1,4 +1,4 @@
-package com.awesomeproject
+package com.eventmanagernewpro
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

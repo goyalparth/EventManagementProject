@@ -1,20 +1,22 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createStackNavigator } from '@react-navigation/stack';
+import {NavigationContainer, CommonActions} from '@react-navigation/native';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createStackNavigator} from '@react-navigation/stack';
 import Toast from 'react-native-toast-message';
-import HomeScreen from "./screens/Home";
+import HomeScreen from './screens/Home';
 import ProgramStack from './Navigation/ProgramStack';
-import SpeakerScreen from "./screens/Speaker";
-import OrganisersScreen from "./screens/Organisers";
-import AnnouncementsScreen from "./screens/Announcements";
+import SpeakerScreen from './screens/Speaker';
+import OrganisersScreen from './screens/Organisers';
+import AnnouncementsScreen from './screens/Announcements';
 import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
-import { FavoriteProvider } from './context/FavoriteContext';
-import { EventProvider } from './context/EventContext';
-import CommitteeScreen from './screens/Committee'; 
+import {FavoriteProvider} from './context/FavoriteContext';
+import {EventProvider} from './context/EventContext';
+import CommitteeScreen from './screens/Committee';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
+import Signin from './screens/Signin';
+import Splash from './screens/Splash';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -25,13 +27,13 @@ export default function App() {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: routeName }],
-      })
+        routes: [{name: routeName}],
+      }),
     );
   };
 
   // Options for screens, including the custom header right button
-  const screenOptions = ({ navigation }) => ({
+  const screenOptions = ({navigation}) => ({
     headerRight: () => <AnnouncementsHeader navigation={navigation} />,
     headerStyle: {
       backgroundColor: '#304067', // Set the background color of the top bar (toolbar)
@@ -52,8 +54,8 @@ export default function App() {
         name="Home"
         component={HomeScreen}
         options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
+        listeners={({navigation}) => ({
+          drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Home');
           },
@@ -63,8 +65,8 @@ export default function App() {
         name="Program"
         component={ProgramStack}
         options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
+        listeners={({navigation}) => ({
+          drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Program');
           },
@@ -74,18 +76,18 @@ export default function App() {
         name="Speaker"
         component={SpeakerScreen}
         options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
+        listeners={({navigation}) => ({
+          drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Speaker');
           },
         })}
       />
-      <Drawer.Screen 
-        name="Committee" 
-        component={CommitteeScreen} 
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
+      <Drawer.Screen
+        name="Committee"
+        component={CommitteeScreen}
+        listeners={({navigation}) => ({
+          drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Committee');
           },
@@ -95,8 +97,8 @@ export default function App() {
         name="Organisers"
         component={OrganisersScreen}
         options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
+        listeners={({navigation}) => ({
+          drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Organisers');
           },
@@ -119,11 +121,21 @@ export default function App() {
   return (
     <EventProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Splash">
+          <Stack.Screen
+            name="Splash"
+            component={Splash}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Signin"
+            component={Signin}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="Drawer"
             component={DrawerNavigator}
-            options={{ headerShown: false }} // Hide the header for the drawer screen
+            options={{headerShown: false}} // Hide the header for the drawer screen
           />
           <Stack.Screen
             name="Announcements"
@@ -147,7 +159,7 @@ export default function App() {
             }}
           />
         </Stack.Navigator>
-        <Toast ref={(ref) => Toast.setRef(ref)} />
+        {/* <Toast ref={ref => Toast.setRef(ref)} /> */}
       </NavigationContainer>
     </EventProvider>
   );
