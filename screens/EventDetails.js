@@ -7,7 +7,6 @@ import { ref, onValue } from 'firebase/database';
 import { ScrollView } from 'react-native-gesture-handler';
 import LocalCalendarModalComponent from '../Components/LocalCalendarModalComponent';
 import RNCalendarEvents from 'react-native-calendar-events';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EventDetailsScreen = ({ route }) => {
   const { id } = route.params;
@@ -15,7 +14,8 @@ const EventDetailsScreen = ({ route }) => {
   const [event, setEvent] = useState(null);
   const [papers, setPapers] = useState([]);
   const [isCalendarModalVisible, setCalendarModalVisible] = useState(false);
-  const [isEventInCalendar, setIsEventInCalendar] = useState(false); // Track if event is in user's calendar
+  const [isEventInCalendar, setIsEventInCalendar] = useState(false);
+  const [calendarId, setLocalCalendarId] = useState(null);
 
   useEffect(() => {
     const fetchCalendarPermissions = async () => {
@@ -52,13 +52,10 @@ const EventDetailsScreen = ({ route }) => {
         const endDate = eventData.endDate || `${eventData.date} ${eventData.endTime}`;
         
         setEvent({ ...eventData, startDate, endDate });
-
-        const paperList = Object.entries(eventData)
-          .filter(([key, value]) => key.startsWith('paper') && value.name && value.url)
-          .map(([key, value]) => value);
-        setPapers(paperList);
-
-        // Check if event already exists in calendar
+        setPapers(Object.entries(eventData)
+          .filter(([key]) => key.startsWith('paper') && eventData[key]?.name && eventData[key]?.url)
+          .map(([_, value]) => value));
+        
         await checkIfEventExistsInCalendar(eventData.title, startDate, endDate);
       } else {
         console.log('No event found for ID:', id);
@@ -72,20 +69,24 @@ const EventDetailsScreen = ({ route }) => {
     try {
       const events = await RNCalendarEvents.fetchAllEvents(new Date(startDate).getTime(), new Date(endDate).getTime());
       const eventExists = events.some(event => event.title === title);
-      setIsEventInCalendar(eventExists); // Update state based on existence
+      setIsEventInCalendar(eventExists);
+      if (eventExists) {
+        const existingEvent = events.find(event => event.title === title);
+        setLocalCalendarId(existingEvent.id); // Store the calendar ID for future reference
+      }
     } catch (error) {
       console.error('Error fetching calendar events:', error);
     }
   };
 
   const handleFavoritePress = async () => {
-    const { isFavorite, calendarId } = getEventStatus(id);
+    const { isFavorite } = getEventStatus(id);
     
     if (isEventInCalendar) {
       // Remove from favorites and calendar
       toggleFavorite(id); // Mark as not favorite
       if (calendarId) {
-        await removeCalendarEvent(calendarId);
+        await removeCalendarEvent(calendarId); // Call to remove the event
         Toast.show({
           type: 'info',
           position: 'bottom',
@@ -96,9 +97,8 @@ const EventDetailsScreen = ({ route }) => {
         setIsEventInCalendar(false); // Update state
       }
     } else {
-      // Add to favorites
+      // Add to favorites and calendar
       toggleFavorite(id);
-  
       if (event) { // Ensure event exists
         const eventObj = {
           title: event.title,
@@ -119,16 +119,16 @@ const EventDetailsScreen = ({ route }) => {
       }
     }
   };
-  
+
   const saveEvent = async (calendar) => {
     if (!event || !event.startDate || !event.endDate) {
       console.error('Event is missing or dates are invalid:', event);
       return; 
     }
-  
-    const startDate = new Date(event.startDate).toISOString(); 
-    const endDate = new Date(event.endDate).toISOString(); 
-  
+
+    const startDate = new Date(event.startDate).toISOString();
+    const endDate = new Date(event.endDate).toISOString();
+
     try {
       const calendarId = await RNCalendarEvents.saveEvent(event.title, {
         startDate,
@@ -136,10 +136,11 @@ const EventDetailsScreen = ({ route }) => {
         notes: event.description,
         calendarId: calendar.id,
       });
-  
+
       setCalendarId(id, calendarId);
+      setLocalCalendarId(calendarId); // Store the new calendar ID
       setCalendarModalVisible(false);
-      setIsEventInCalendar(true); // Mark the event as existing in the calendar
+      setIsEventInCalendar(true);
       Toast.show({
         type: 'success',
         position: 'bottom',
@@ -156,18 +157,25 @@ const EventDetailsScreen = ({ route }) => {
       });
     }
   };
-  
 
   const removeCalendarEvent = async (calendarId) => {
     try {
-      const eventToRemove = await RNCalendarEvents.findEventById(calendarId);
-      if (eventToRemove) {
-        await RNCalendarEvents.removeEvent(eventToRemove.id);
-      } else {
-        console.warn('Event to remove not found:', calendarId);
-      }
+      await RNCalendarEvents.removeEvent(calendarId);
+      console.log(`Event removed successfully: ${calendarId}`); // Log successful removal
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Event removed from calendar',
+        visibilityTime: 2000,
+      });
     } catch (error) {
       console.error('Error removing event from calendar:', error);
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'Failed to remove event from calendar',
+        visibilityTime: 2000,
+      });
     }
   };
 
@@ -196,19 +204,17 @@ const EventDetailsScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Date and Time Section */}
         <View style={styles.cardContainer}>
           <View style={styles.card}>
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/calendar-icon.png')} style={styles.icon} />
               <View>
-                <Text style={styles.label}> {event.date} </Text>
-                <Text style={styles.subLabel}> {event.startTime} - {event.endTime} </Text>
+                <Text style={styles.label}>{event.date}</Text>
+                <Text style={styles.subLabel}>{event.startTime} - {event.endTime}</Text>
               </View>
             </View>
           </View>
 
-          {/* Location Section */}
           <View style={styles.card}>
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/location-icon.png')} style={styles.icon} />
@@ -219,7 +225,6 @@ const EventDetailsScreen = ({ route }) => {
             </View>
           </View>
 
-          {/* Speaker Section */}
           <View style={styles.card}>
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/speaker-icon.png')} style={styles.icon} />
@@ -230,10 +235,9 @@ const EventDetailsScreen = ({ route }) => {
             </View>
           </View>
 
-          {/* Paper Information Section */}
           {papers && papers.length > 0 && (
             <View style={styles.infoContainer}>
-              <Text style={styles.sectionHeader}>Description</Text>
+              <Text style={styles.sectionHeader}>Papers:</Text>
               {papers.map((paper, index) => (
                 <View key={index} style={styles.paperRow}>
                   <Text style={styles.paperText}>{paper.name}</Text>
@@ -249,7 +253,6 @@ const EventDetailsScreen = ({ route }) => {
         <Toast ref={(ref) => Toast.setRef(ref)} />
       </ScrollView>
 
-      {/* Calendar Selection Modal */}
       <LocalCalendarModalComponent
         isVisible={isCalendarModalVisible}
         closeModal={() => setCalendarModalVisible(false)}
@@ -265,13 +268,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 30,
     height: '100%',
-    backgroundColor: '#304067', 
+    backgroundColor: '#304067',
   },
-
   cardContainer: {
-    backgroundColor: '#F9F2E7', 
-    flex: 1, 
-    width: '100%', 
+    backgroundColor: '#F9F2E7',
+    flex: 1,
+    width: '100%',
     borderRadius: 15,
     padding: 20,
     marginBottom: 10,
@@ -290,11 +292,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FCFAF8', 
+    color: '#FCFAF8',
     marginStart: 20,
   },
   card: {
-    backgroundColor: 'white', 
+    backgroundColor: 'white',
     padding: 15,
     marginBottom: 15,
     borderRadius: 10,
@@ -309,7 +311,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    color: '#000000', 
+    color: '#000000',
     marginLeft: 10,
   },
   subLabel: {
