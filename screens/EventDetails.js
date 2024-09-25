@@ -1,61 +1,177 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Platform, PermissionsAndroid } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useEventContext } from '../context/EventContext';
-import { database } from '../firebaseConfig'; // Import Firebase configuration
-import { ref, onValue } from 'firebase/database'; // Firebase methods for fetching data
+import { database } from '../firebaseConfig';
+import { ref, onValue } from 'firebase/database';
 import { ScrollView } from 'react-native-gesture-handler';
+import LocalCalendarModalComponent from '../Components/LocalCalendarModalComponent';
+import RNCalendarEvents from 'react-native-calendar-events';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EventDetailsScreen = ({ route }) => {
-  const { id } = route.params; // Get the event id from the route params
+  const { id } = route.params;
   const { toggleFavorite, getEventStatus, setCalendarId } = useEventContext();
-  const [event, setEvent] = useState(null); // Store the event details
-  const [papers, setPapers] = useState([]); // Store the paper details
+  const [event, setEvent] = useState(null);
+  const [papers, setPapers] = useState([]);
+  const [isCalendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [isEventInCalendar, setIsEventInCalendar] = useState(false); // Track if event is in user's calendar
 
   useEffect(() => {
-    // Fetch the event details from Firebase using the event ID
+    const fetchCalendarPermissions = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
+            {
+              title: 'Calendar Permission',
+              message: 'This app needs access to your calendar to add events.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('Calendar permission granted');
+          } else {
+            console.log('Calendar permission denied');
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      }
+    };
+
+    fetchCalendarPermissions();
+
     const eventRef = ref(database, `events/${id}`);
-    const unsubscribe = onValue(eventRef, (snapshot) => {
+    const unsubscribe = onValue(eventRef, async (snapshot) => {
       const eventData = snapshot.val();
       if (eventData) {
-        setEvent(eventData); // Update the state with the event details
-        // Filter out papers that have empty names or URLs
+        const startDate = eventData.startDate || `${eventData.date} ${eventData.startTime}`;
+        const endDate = eventData.endDate || `${eventData.date} ${eventData.endTime}`;
+        
+        setEvent({ ...eventData, startDate, endDate });
+
         const paperList = Object.entries(eventData)
           .filter(([key, value]) => key.startsWith('paper') && value.name && value.url)
           .map(([key, value]) => value);
         setPapers(paperList);
+
+        // Check if event already exists in calendar
+        await checkIfEventExistsInCalendar(eventData.title, startDate, endDate);
       } else {
         console.log('No event found for ID:', id);
       }
     });
 
-    // Cleanup listener when component unmounts
     return () => unsubscribe();
   }, [id]);
 
+  const checkIfEventExistsInCalendar = async (title, startDate, endDate) => {
+    try {
+      const events = await RNCalendarEvents.fetchAllEvents(new Date(startDate).getTime(), new Date(endDate).getTime());
+      const eventExists = events.some(event => event.title === title);
+      setIsEventInCalendar(eventExists); // Update state based on existence
+    } catch (error) {
+      console.error('Error fetching calendar events:', error);
+    }
+  };
+
   const handleFavoritePress = async () => {
     const { isFavorite, calendarId } = getEventStatus(id);
-    toggleFavorite(id);
-    if (isFavorite && calendarId) {
-      Toast.show({
-        type: 'info',
-        position: 'bottom',
-        text1: 'Removed from favorites and calendar',
-        visibilityTime: 2000,
-      });
-      setCalendarId(id, null);
+    
+    if (isEventInCalendar) {
+      // Remove from favorites and calendar
+      toggleFavorite(id); // Mark as not favorite
+      if (calendarId) {
+        await removeCalendarEvent(calendarId);
+        Toast.show({
+          type: 'info',
+          position: 'bottom',
+          text1: 'Removed from favorites and calendar',
+          visibilityTime: 2000,
+        });
+        setCalendarId(id, null); // Clear the calendar ID
+        setIsEventInCalendar(false); // Update state
+      }
     } else {
+      // Add to favorites
+      toggleFavorite(id);
+  
+      if (event) { // Ensure event exists
+        const eventObj = {
+          title: event.title,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          description: `Location: ${event.location}\nAddress: ${event.address}`,
+        };
+        
+        setCalendarModalVisible(true); // Open the calendar modal to save the event
+        Toast.show({
+          type: 'success',
+          position: 'bottom',
+          text1: 'Added to favorites',
+          visibilityTime: 2000,
+        });
+      } else {
+        console.error('Event data is missing when trying to add to favorites');
+      }
+    }
+  };
+  
+  const saveEvent = async (calendar) => {
+    if (!event || !event.startDate || !event.endDate) {
+      console.error('Event is missing or dates are invalid:', event);
+      return; 
+    }
+  
+    const startDate = new Date(event.startDate).toISOString(); 
+    const endDate = new Date(event.endDate).toISOString(); 
+  
+    try {
+      const calendarId = await RNCalendarEvents.saveEvent(event.title, {
+        startDate,
+        endDate,
+        notes: event.description,
+        calendarId: calendar.id,
+      });
+  
+      setCalendarId(id, calendarId);
+      setCalendarModalVisible(false);
+      setIsEventInCalendar(true); // Mark the event as existing in the calendar
       Toast.show({
         type: 'success',
         position: 'bottom',
-        text1: 'Added to favorites',
+        text1: 'Added to favorites and calendar',
+        visibilityTime: 2000,
+      });
+    } catch (error) {
+      console.error('Error adding event to calendar:', error);
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'Failed to add event to calendar',
         visibilityTime: 2000,
       });
     }
   };
+  
+
+  const removeCalendarEvent = async (calendarId) => {
+    try {
+      const eventToRemove = await RNCalendarEvents.findEventById(calendarId);
+      if (eventToRemove) {
+        await RNCalendarEvents.removeEvent(eventToRemove.id);
+      } else {
+        console.warn('Event to remove not found:', calendarId);
+      }
+    } catch (error) {
+      console.error('Error removing event from calendar:', error);
+    }
+  };
 
   const handlePaperDownload = (url) => {
-    // Open the paper URL using Linking API
     Linking.openURL(url).catch(err => console.error('An error occurred while opening the URL:', err));
   };
 
@@ -74,7 +190,7 @@ const EventDetailsScreen = ({ route }) => {
           <Text style={styles.title}>{event.title}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <Image
-              source={getEventStatus(id).isFavorite ? require('../images/heart-filled.png') : require('../images/heart-empty.png')}
+              source={isEventInCalendar ? require('../images/heart-filled.png') : require('../images/heart-empty.png')}
               style={styles.favoriteIcon}
             />
           </TouchableOpacity>
@@ -115,7 +231,7 @@ const EventDetailsScreen = ({ route }) => {
           </View>
 
           {/* Paper Information Section */}
-          {papers.length > 0 && (
+          {papers && papers.length > 0 && (
             <View style={styles.infoContainer}>
               <Text style={styles.sectionHeader}>Description</Text>
               {papers.map((paper, index) => (
@@ -128,10 +244,18 @@ const EventDetailsScreen = ({ route }) => {
               ))}
             </View>
           )}
-
-          <Toast ref={(ref) => Toast.setRef(ref)} />
         </View>
+
+        <Toast ref={(ref) => Toast.setRef(ref)} />
       </ScrollView>
+
+      {/* Calendar Selection Modal */}
+      <LocalCalendarModalComponent
+        isVisible={isCalendarModalVisible}
+        closeModal={() => setCalendarModalVisible(false)}
+        handleCalendarSelected={saveEvent}
+        label="Select a calendar"
+      />
     </View>
   );
 };
@@ -141,22 +265,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 30,
     height: '100%',
-    backgroundColor: '#304067', // Main background color
+    backgroundColor: '#304067', 
   },
 
   cardContainer: {
-    backgroundColor: '#F9F2E7', // Card background
-    flex: 1, // Match the parent height
-    width: '100%', // Match the parent width
+    backgroundColor: '#F9F2E7', 
+    flex: 1, 
+    width: '100%', 
     borderRadius: 15,
     padding: 20,
     marginBottom: 10,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#F9F2E7', // Same background color as the card in your design
   },
   loadingContainer: {
     flex: 1,
@@ -172,11 +290,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FCFAF8', // Header text color
+    color: '#FCFAF8', 
     marginStart: 20,
   },
   card: {
-    backgroundColor: 'white', // Light card background similar to the one in the design
+    backgroundColor: 'white', 
     padding: 15,
     marginBottom: 15,
     borderRadius: 10,
@@ -191,7 +309,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    color: '#000000', // Dark blue text color
+    color: '#000000', 
     marginLeft: 10,
   },
   subLabel: {
