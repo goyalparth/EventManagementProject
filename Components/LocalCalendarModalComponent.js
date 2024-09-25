@@ -29,7 +29,8 @@ const LocalCalendarModalComponent = (props) => {
       transparent={true}
       visible={props.isVisible}
       onRequestClose={props.closeModal}
-      animationType="slide">
+      animationType="slide"
+    >
       <TouchableWithoutFeedback onPress={props.closeModal}>
         <View style={styles.backdrop}>
           <View style={styles.agendaModalBody}>
@@ -43,13 +44,27 @@ const LocalCalendarModalComponent = (props) => {
                       onPress={() => props.handleCalendarSelected(calendar)}
                       style={[
                         styles.calendarOption,
-                        {backgroundColor: calendar.color},
-                      ]}>
+                        { backgroundColor: calendar.color },
+                      ]}
+                    >
                       <Text key={i} style={[styles.defaultText]}>
                         {calendar.title}
                       </Text>
                     </TouchableOpacity>
-                  ) : null
+                  ) : (
+                    <TouchableOpacity
+                      key={i}
+                      disabled={true}
+                      style={[
+                        styles.calendarOption,
+                        { backgroundColor: '#d3d3d3' }, // Grey out non-modifiable calendars
+                      ]}
+                    >
+                      <Text key={i} style={[styles.defaultText, { color: '#888' }]}>
+                        {calendar.title} (Read-only)
+                      </Text>
+                    </TouchableOpacity>
+                  )
                 )}
               </ScrollView>
             </View>
