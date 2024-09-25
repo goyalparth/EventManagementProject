@@ -13,9 +13,10 @@ import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
-import CommitteeScreen from './screens/Committee'; 
+import CommitteeScreen from './screens/Committee';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
+import QRCodeScreen from './screens/QRCodeScanner';
 
 
 const Drawer = createDrawerNavigator();
@@ -83,9 +84,9 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen 
-        name="Committee" 
-        component={CommitteeScreen} 
+      <Drawer.Screen
+        name="Committee"
+        component={CommitteeScreen}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -104,6 +105,18 @@ export default function App() {
           },
         })}
       />
+      <Drawer.Screen
+        name="QRCode"
+        component={QRCodeScreen}
+        options={screenOptions}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'QRCode');
+          },
+        })}
+      />
+
       {/* <Drawer.Screen
         name="AddEvent" // Add the AddEvent screen to the drawer
         component={AddEventScreen}
