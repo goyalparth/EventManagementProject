@@ -15,6 +15,8 @@ import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
 import CommitteeScreen from './screens/Committee'; 
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
+import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
+
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -146,6 +148,18 @@ export default function App() {
               headerTitle: '', // Optionally remove the title for AddEvent screen
             }}
           />
+          <Stack.Screen
+            name="AddAnnouncement"
+            component={AddAnnouncement}
+            options={{
+              headerStyle: {
+                backgroundColor: '#304067', // Set the toolbar background color
+              },
+              headerTintColor: '#FCFAF8', // Set the icon color
+              headerTitle: '', // Set the title for the AddAnnouncement screen
+            }}
+          />
+
         </Stack.Navigator>
         <Toast ref={(ref) => Toast.setRef(ref)} />
       </NavigationContainer>
