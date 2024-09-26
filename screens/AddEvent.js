@@ -198,7 +198,7 @@ const AddEvent = ({ navigation }) => {
               <Picker
                 selectedValue={paperCount}
                 onValueChange={(itemValue) => setPaperCount(itemValue)}
-                style={{ height: 50, width: 120 }} // Adjust the size
+                style={{ height: 50, width: 120, color: '#000' }} // Adjust the size
               >
                 <Picker.Item label="1" value={1} />
                 <Picker.Item label="2" value={2} />
@@ -317,9 +317,11 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: '#304067', // Dark blue button background
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: 'center',
     marginTop: 16,
+    width: 200,
+    alignSelf: 'center',
   },
   addButtonText: {
     color: '#FFFFFF',
@@ -329,9 +331,11 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: '#da5e5a', // Cancel button background
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: 'center',
     marginTop: 16,
+    width: 200,
+    alignSelf: 'center',
   },
   picker: {
     backgroundColor: 'white',
