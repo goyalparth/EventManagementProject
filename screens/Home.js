@@ -57,6 +57,10 @@ const HomeScreen = () => {
     navigation.navigate('QRCode');
   };
 
+  const handleSitePress = () => {
+    navigation.navigate('Site');
+  };
+
   // Render each event card
   const renderItem = ({ item }) => (
     <View style={styles.cardWrapper}>
@@ -95,7 +99,7 @@ const HomeScreen = () => {
             <Text style={styles.navText}>Check-In</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navButton}>
+          <TouchableOpacity style={styles.navButton} onPress={handleSitePress}>
             <Image source={require('../images/sitemap-icon.png')} style={styles.navIcon} />
             <Text style={styles.navText}>Site Map</Text>
           </TouchableOpacity>
