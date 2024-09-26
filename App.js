@@ -11,7 +11,7 @@ import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
-import CommitteeScreen from './screens/Committee';
+// import CommitteeScreen from './screens/Committee';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
 import QRCodeScreen from './screens/QRCodeScanner'; // QR code screen import
@@ -74,17 +74,7 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen
-        name="Committee"
-        component={CommitteeScreen}
-        options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Committee');
-          },
-        })}
-      />
+      
       <Drawer.Screen
         name="Organisers"
         component={OrganisersScreen}
@@ -96,17 +86,7 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen
-        name="About"
-        component={About}
-        options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'About');
-          },
-        })}
-      />
+      
       <Drawer.Screen
         name="QRCode"
         component={QRCodeScreen}
@@ -126,6 +106,17 @@ export default function App() {
           drawerItemPress: (e) => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Site');
+          },
+        })}
+      />
+      <Drawer.Screen
+        name="About"
+        component={About}
+        options={screenOptions}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'About');
           },
         })}
       />
