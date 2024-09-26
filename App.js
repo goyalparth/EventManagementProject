@@ -1,8 +1,9 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Image, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
@@ -11,7 +12,6 @@ import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
-// import CommitteeScreen from './screens/Committee';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
 import QRCodeScreen from './screens/QRCodeScanner'; // QR code screen import
@@ -19,9 +19,21 @@ import About from './screens/About'; // About screen import
 import OrganisersScreen from './screens/Organisers'; // Organizers screen import
 import Site from './screens/Site'; // Site screen import
 
-
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
+
+// Custom DrawerContent to include the ACIS logo
+const CustomDrawerContent = (props) => (
+  <DrawerContentScrollView {...props}>
+    <View style={styles.logoContainer}>
+      <Image
+        source={require('./images/acis-logo.png')} // Make sure to place the image in the assets folder
+        style={styles.logo}
+      />
+    </View>
+    <DrawerItemList {...props} />
+  </DrawerContentScrollView>
+);
 
 export default function App() {
   // Function to handle navigation reset
@@ -51,7 +63,7 @@ export default function App() {
 
   // Drawer Navigator including all screens
   const DrawerNavigator = () => (
-    <Drawer.Navigator>
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
         name="Home"
         component={HomeScreen}
@@ -74,7 +86,6 @@ export default function App() {
           },
         })}
       />
-      
       <Drawer.Screen
         name="Organisers"
         component={OrganisersScreen}
@@ -86,7 +97,6 @@ export default function App() {
           },
         })}
       />
-      
       <Drawer.Screen
         name="QRCode"
         component={QRCodeScreen}
@@ -170,3 +180,16 @@ export default function App() {
     </EventProvider>
   );
 }
+
+// Styles for the logo and drawer content
+const styles = StyleSheet.create({
+  logoContainer: {
+    alignItems: 'center',
+    marginVertical: 20, // Add some vertical space
+  },
+  logo: {
+    width: 150, // Adjust the size of the logo
+    height: 150,
+    resizeMode: 'contain', // Ensure the image scales properly
+  },
+});
