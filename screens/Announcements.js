@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../firebaseConfig'; // Import database
 import { ScrollView } from 'react-native-gesture-handler';
@@ -31,7 +31,7 @@ const AnnouncementsScreen = ({ navigation }) => {
     });
   }, []);
 
-  const confirmDelete = (key) => {
+  const handleDelete = (key) => {
     Alert.alert(
       'Confirm Deletion',
       'Are you sure you want to delete this announcement?',
@@ -49,47 +49,31 @@ const AnnouncementsScreen = ({ navigation }) => {
     );
   };
 
-  const handleDelete = (key) => {
-    const announcementRef = ref(database, `Announcement/${key}`);
-    remove(announcementRef)
-      .then(() => {
-        Alert.alert('Deleted', 'The announcement has been deleted.');
-      })
-      .catch((error) => {
-        Alert.alert('Error', `Error deleting announcement: ${error.message}`);
-      });
-  };
-
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>ANNOUNCEMENTS</Text>
-        </View>
+    <View style={{ flex: 1, backgroundColor: '#304067' }}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>ANNOUNCEMENTS</Text>
+      </View>
 
-        <View style={styles.container}>
-          <FlatList
-            data={announcements}
-            keyExtractor={(item) => item.key}
-            renderItem={({ item }) => (
-              <View style={styles.announcement}>
-                <View style={styles.announcementContent}>
-                  <View style={styles.textContainer}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => confirmDelete(item.key)} style={styles.deleteIcon}>
-                    <Image source={require('../images/delete_icon.png')} style={styles.iconImage} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.dateTime}>{item.dateTime}</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        {announcements.map((item) => (
+          <View key={item.key} style={styles.announcement}>
+            <View style={styles.announcementContent}>
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.description}>{item.description}</Text>
               </View>
-            )}
-          />
-          <TouchableOpacity onPress={() => navigation.navigate('AddAnnouncement')} style={styles.addButton}>
-            <Image source={require('../images/add_icon.png')} style={styles.addIconImage} />
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity onPress={() => handleDelete(item.key)} style={styles.deleteIcon}>
+                <Image source={require('../images/delete_icon.png')} style={styles.iconImage} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.dateTime}>{item.dateTime}</Text>
+          </View>
+        ))}
+
+        <TouchableOpacity onPress={() => navigation.navigate('AddAnnouncement')} style={styles.addButton}>
+          <Image source={require('../images/add_icon.png')} style={styles.addIconImage} />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -114,10 +98,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F9F2E7',
     flex: 1,
-    width: '100%',
     borderRadius: 15,
     padding: 20,
     marginBottom: 10,
+    margin: 10,
   },
   text: {
     fontSize: 24,
@@ -173,7 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#304067',
     position: 'absolute',
     right: 20,
-    bottom: 20,
+    bottom: 40,
     width: 60,
     height: 60,
     borderRadius: 30,

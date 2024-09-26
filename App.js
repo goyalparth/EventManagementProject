@@ -6,8 +6,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message';
 import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
-import SpeakerScreen from "./screens/Speaker";
-import OrganisersScreen from "./screens/Organisers";
 import AnnouncementsScreen from "./screens/Announcements";
 import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
@@ -16,7 +14,10 @@ import { EventProvider } from './context/EventContext';
 import CommitteeScreen from './screens/Committee';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
-import QRCodeScreen from './screens/QRCodeScanner';
+import QRCodeScreen from './screens/QRCodeScanner'; // QR code screen import
+import About from './screens/About'; // About screen import
+import OrganisersScreen from './screens/Organisers'; // Organizers screen import
+import Site from './screens/Site'; // Site screen import
 
 
 const Drawer = createDrawerNavigator();
@@ -74,19 +75,9 @@ export default function App() {
         })}
       />
       <Drawer.Screen
-        name="Speaker"
-        component={SpeakerScreen}
-        options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Speaker');
-          },
-        })}
-      />
-      <Drawer.Screen
         name="Committee"
         component={CommitteeScreen}
+        options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
@@ -106,6 +97,17 @@ export default function App() {
         })}
       />
       <Drawer.Screen
+        name="About"
+        component={About}
+        options={screenOptions}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'About');
+          },
+        })}
+      />
+      <Drawer.Screen
         name="QRCode"
         component={QRCodeScreen}
         options={screenOptions}
@@ -116,18 +118,17 @@ export default function App() {
           },
         })}
       />
-
-      {/* <Drawer.Screen
-        name="AddEvent" // Add the AddEvent screen to the drawer
-        component={AddEventScreen}
+      <Drawer.Screen
+        name="Site"
+        component={Site}
         options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
-            handleNavigationReset(navigation, 'AddEvent');
+            handleNavigationReset(navigation, 'Site');
           },
         })}
-      /> */}
+      />
     </Drawer.Navigator>
   );
 
@@ -172,7 +173,6 @@ export default function App() {
               headerTitle: '', // Set the title for the AddAnnouncement screen
             }}
           />
-
         </Stack.Navigator>
         <Toast ref={(ref) => Toast.setRef(ref)} />
       </NavigationContainer>
