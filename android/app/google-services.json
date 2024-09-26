@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "748465937898",
+    "project_id": "event-manager-2ae16",
+    "storage_bucket": "event-manager-2ae16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748465937898:android:6d0c0c75ab91541cbf6693",
+        "android_client_info": {
+          "package_name": "com.awesomeproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748465937898-6pccn1aeqckg1d55oqvihg91h6hnuacq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfCqdKvj_se4_ob3G8wI2Fq1B-pXKpbgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748465937898-6pccn1aeqckg1d55oqvihg91h6hnuacq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748465937898:android:cc9edf66b6172be7bf6693",
+        "android_client_info": {
+          "package_name": "com.eventmanagernewpro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748465937898-87t02b6dp6luljgjh4g39vhoe0dkbu97.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eventmanagernewpro",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "748465937898-6pccn1aeqckg1d55oqvihg91h6hnuacq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfCqdKvj_se4_ob3G8wI2Fq1B-pXKpbgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748465937898-6pccn1aeqckg1d55oqvihg91h6hnuacq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
