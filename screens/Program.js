@@ -232,6 +232,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
+  monthText:{
+    color:'#000000',
+    fontSize: 20,
+  },
   dateText: {
     fontSize: 20,
     color: '#304067',

@@ -6,16 +6,16 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Toast from 'react-native-toast-message';
 import HomeScreen from "./screens/Home";
 import ProgramStack from './Navigation/ProgramStack';
-import SpeakerScreen from "./screens/Speaker";
-import OrganisersScreen from "./screens/Organisers";
 import AnnouncementsScreen from "./screens/Announcements";
 import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { EventProvider } from './context/EventContext';
-import CommitteeScreen from './screens/Committee'; 
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
-import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
+import AddAnnouncement from './screens/AddAnnouncement';
+import About from './screens/About';// Adjust the import path
+import OrganisersScreen from './screens/Organisers';
+import Site from './screens/Site';
 
 
 const Drawer = createDrawerNavigator();
@@ -72,18 +72,7 @@ export default function App() {
           },
         })}
       />
-      <Drawer.Screen
-        name="Speaker"
-        component={SpeakerScreen}
-        options={screenOptions}
-        listeners={({ navigation }) => ({
-          drawerItemPress: (e) => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Speaker');
-          },
-        })}
-      />
-      <Drawer.Screen 
+      {/* <Drawer.Screen 
         name="Committee" 
         component={CommitteeScreen} 
         listeners={({ navigation }) => ({
@@ -92,10 +81,10 @@ export default function App() {
             handleNavigationReset(navigation, 'Committee');
           },
         })}
-      />
-      <Drawer.Screen
-        name="Organisers"
-        component={OrganisersScreen}
+      /> */}
+      <Drawer.Screen 
+        name="Organisers" 
+        component={OrganisersScreen} 
         options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
@@ -104,17 +93,28 @@ export default function App() {
           },
         })}
       />
-      {/* <Drawer.Screen
-        name="AddEvent" // Add the AddEvent screen to the drawer
-        component={AddEventScreen}
+      <Drawer.Screen
+        name="About"
+        component={About}
         options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
-            handleNavigationReset(navigation, 'AddEvent');
+            handleNavigationReset(navigation, 'About');
           },
         })}
-      /> */}
+      />
+      <Drawer.Screen
+        name="Site" // Add the AddEvent screen to the drawer
+        component={Site}
+        options={screenOptions}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            handleNavigationReset(navigation, 'Site');
+          },
+        })}
+      />
     </Drawer.Navigator>
   );
 
