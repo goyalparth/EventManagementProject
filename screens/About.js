@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#FCFAF8', // Header text color
+    marginTop:10,
   },
   headerContainer: {
     paddingVertical: 10,

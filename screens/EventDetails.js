@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Platform, PermissionsAndroid } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Platform, PermissionsAndroid, Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useEventContext } from '../context/EventContext';
 import { database } from '../firebaseConfig';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, remove } from 'firebase/database';
 import { ScrollView } from 'react-native-gesture-handler';
 import LocalCalendarModalComponent from '../Components/LocalCalendarModalComponent';
 import RNCalendarEvents from 'react-native-calendar-events';
+import { useNavigation } from '@react-navigation/native';
 
 const EventDetailsScreen = ({ route }) => {
+  const navigation = useNavigation();
   const { id } = route.params;
   const { toggleFavorite, getEventStatus, setCalendarId } = useEventContext();
   const [event, setEvent] = useState(null);
@@ -179,6 +181,30 @@ const EventDetailsScreen = ({ route }) => {
     }
   };
 
+ 
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Event',
+      'Are you sure you want to delete this event?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: async () => {
+          const eventRef = ref(database, `events/${id}`);
+          await remove(eventRef); // Remove event from Firebase
+          // Navigate back or show a message here if necessary
+          navigation.goBack();
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Event deleted successfully',
+            visibilityTime: 2000,
+          });
+        }, style: 'destructive' }
+      ]
+    );
+  };
+
   const handlePaperDownload = (url) => {
     Linking.openURL(url).catch(err => console.error('An error occurred while opening the URL:', err));
   };
@@ -195,6 +221,12 @@ const EventDetailsScreen = ({ route }) => {
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
+          <TouchableOpacity onPress={handleDelete}>
+            <Image
+              source={require('../images/delete_icon.png')} // Use your delete icon
+              style={styles.deleteIcon}
+            />
+          </TouchableOpacity>
           <Text style={styles.title}>{event.title}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <Image
@@ -354,6 +386,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginEnd: 20,
+  },
+  deleteIcon: {
+    width: 30,
+    height: 30,
+    marginStart: 20,
   },
 });
 

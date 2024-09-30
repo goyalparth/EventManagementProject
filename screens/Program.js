@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     borderRadius: 15,
-    padding: 20,
+    padding: 10,
     marginBottom: 10,
   },
   headerContainer: {
@@ -254,7 +254,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9F2E7',
     elevation: 5,
     marginTop: 15,
-    width: '100%',
+    width: 'match_parent',
+    marginLeft:5,
+    marginRight:5,
+    
   },
   noEventsText: {
     textAlign: 'center',

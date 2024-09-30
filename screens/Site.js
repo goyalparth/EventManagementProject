@@ -10,11 +10,11 @@ const SiteScreen = () => {
   return (
     <View style={styles.main}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>SITE MAP</Text>
+        <Text style={styles.headerText}>SITE MAP - UNIVERSITY OF CANBERRA</Text>
       </View>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.textContainer}>
-          <Text style={styles.title}>SITE MAP-UNIVERSITY OF CANBERRA</Text>
+          
           {/* Make the image clickable using TouchableOpacity */}
           <TouchableOpacity onPress={handleOpenLink}>
             <Image 
@@ -49,6 +49,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#FCFAF8', // Header text color
+    width:'match_parent',
+    margin:5,
+    textAlign: 'center',
+    marginTop:15,
   },
   headerContainer: {
     paddingVertical: 10,

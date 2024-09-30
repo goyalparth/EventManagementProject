@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../firebaseConfig'; // Import database
 import { ScrollView } from 'react-native-gesture-handler';
@@ -36,13 +36,11 @@ const AnnouncementsScreen = ({ navigation }) => {
       'Confirm Deletion',
       'Are you sure you want to delete this announcement?',
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          onPress: () => handleDelete(key), // Proceed with deletion if confirmed
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: async () => {
+          const eventRef = ref(database, `Announcement/${key}`);
+          await remove(eventRef);
+        }, // Proceed with deletion if confirmed
         },
       ],
       { cancelable: false } // Ensure the dialog cannot be dismissed by tapping outside
@@ -92,8 +90,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
+    fontWeight: 'bold',
     fontSize: 20,
     color: '#FCFAF8', // Same header text color
+    marginTop: 10,
   },
   container: {
     backgroundColor: '#F9F2E7',

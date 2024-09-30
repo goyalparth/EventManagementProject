@@ -286,8 +286,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
+    fontWeight: 'bold',
     fontSize: 20,
     color: '#FCFAF8', // Same header text color
+    marginTop:10,
   },
   card: {
     backgroundColor: '#fff',
