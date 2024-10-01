@@ -10,7 +10,7 @@ const HomeScreen = () => {
 
   // Fetch events from Firebase Realtime Database
   useEffect(() => {
-    const eventsRef = ref(database, 'events'); // Reference to 'events' node in Firebase
+    const eventsRef = ref(database, 'Session'); // Reference to 'events' node in Firebase
 
     // Listen for changes in the 'events' node
     const unsubscribe = onValue(eventsRef, (snapshot) => {
@@ -19,7 +19,7 @@ const HomeScreen = () => {
         // Convert fetched events to an array and parse the date and time
         let fetchedEvents = Object.keys(data).map((key) => ({
           id: key,
-          title: data[key].title,
+          title: data[key].name,
           date: data[key].date,
           startTime: data[key].startTime,
           endTime: data[key].endTime,
@@ -106,7 +106,7 @@ const HomeScreen = () => {
         </View>
 
         {/* Upcoming Conferences Section */}
-        <Text style={styles.sectionHeader}>UPCOMING CONFERENCES</Text>
+        <Text style={styles.sectionHeader}>UPCOMING SESSIONS</Text>
         <FlatList
           data={events}
           renderItem={renderItem}

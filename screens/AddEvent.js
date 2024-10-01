@@ -43,7 +43,7 @@ const AddEvent = ({ navigation }) => {
     if (!title || !date || !startTime || !endTime || !sessionSpeaker || !location || !address) {
       return false;
     }
-
+  
     for (let i = 1; i <= paperCount; i++) {
       if (!paperDetails[`paper${i}`].name || !paperDetails[`paper${i}`].url) {
         return false;
@@ -51,6 +51,7 @@ const AddEvent = ({ navigation }) => {
     }
     return true;
   };
+  
 
   const addEvent = () => {
     // Check if the form is valid
@@ -58,22 +59,26 @@ const AddEvent = ({ navigation }) => {
       Alert.alert('Error', 'Please fill out all fields before adding the event.');
       return;
     }
-
-    const eventRef = ref(database, 'events');
+  
+    const eventRef = ref(database, 'Session');
     const newEvent = {
-      title,
-      date: date ? formatDate(date) : '', // Check if date is selected
-      startTime: startTime ? formatTime(startTime) : '', // Check if start time is selected
-      endTime: endTime ? formatTime(endTime) : '', // Check if end time is selected
-      sessionSpeaker,
-      location,
-      address,
-      paper1: paperDetails.paper1,
-      paper2: paperDetails.paper2,
-      paper3: paperDetails.paper3,
-      paper4: paperDetails.paper4,
+      name: title, // Use 'name' as the title
+      description: sessionSpeaker, // Use 'description' for the session speaker
+      date: date ? formatDate(date) : '', // Event date
+      startTime: startTime ? formatTime(startTime) : '', // Event start time
+      endTime: endTime ? formatTime(endTime) : '', // Event end time
+      location, // Event location
+      address, // Event address
+      paper1_name: paperDetails.paper1.name, // Paper 1 name
+      paper1_url: paperDetails.paper1.url, // Paper 1 URL
+      paper2_name: paperDetails.paper2.name, // Paper 2 name
+      paper2_url: paperDetails.paper2.url, // Paper 2 URL
+      paper3_name: paperDetails.paper3.name, // Paper 3 name
+      paper3_url: paperDetails.paper3.url, // Paper 3 URL
+      paper4_name: paperDetails.paper4.name, // Paper 4 name
+      paper4_url: paperDetails.paper4.url, // Paper 4 URL
     };
-
+  
     push(eventRef, newEvent)
       .then(() => {
         Alert.alert('Success', 'Event added successfully!');
@@ -83,6 +88,7 @@ const AddEvent = ({ navigation }) => {
         Alert.alert('Error', `Error adding event: ${error.message}`);
       });
   };
+  
 
   const handlePaperDetailsChange = (paperNumber, field, value) => {
     setPaperDetails((prevDetails) => ({

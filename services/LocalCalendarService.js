@@ -37,7 +37,7 @@ export const listCalendars = async () => {
 // Function to add a calendar event
 export const addCalendarEvent = async (event, calendar) => {
   try {
-    const eventId = await RNCalendarEvents.saveEvent(event.title, {
+    const eventId = await RNCalendarEvents.saveEvent(event.name, {
       startDate: event.startDate,
       endDate: event.endDate,
       description: event.description,
