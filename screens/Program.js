@@ -124,7 +124,7 @@ const ProgramScreen = () => {
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Delete', onPress: async () => {
-          const eventRef = ref(database, `events/${id}`);
+          const eventRef = ref(database, `Session/${id}`);
           await remove(eventRef); // Remove event from Firebase
           setFilteredEvents(filteredEvents.filter(event => event.id !== id)); // Remove from the filtered list
         }, style: 'destructive' }

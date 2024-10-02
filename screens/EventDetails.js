@@ -241,7 +241,7 @@ const EventDetailsScreen = ({ route }) => {
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/speaker-icon.png')} style={styles.icon} />
               <View>
-                <Text style={styles.label}>{event.description}</Text>
+                <Text style={styles.label}>{event.sessionChair}</Text>
                 <Text style={styles.subLabel}>Session Chair</Text>
               </View>
             </View>

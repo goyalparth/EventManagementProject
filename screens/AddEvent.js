@@ -10,7 +10,7 @@ const AddEvent = ({ navigation }) => {
   const [date, setDate] = useState(null); // Set initial state to null for placeholders
   const [startTime, setStartTime] = useState(null); // Set initial state to null for placeholders
   const [endTime, setEndTime] = useState(null); // Set initial state to null for placeholders
-  const [sessionSpeaker, setSessionSpeaker] = useState('');
+  const [sessionChair, setSessionChair] = useState('');
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [paperCount, setPaperCount] = useState(1); // State for the number of papers
@@ -40,7 +40,7 @@ const AddEvent = ({ navigation }) => {
 
   // Validation function to check if any field is empty
   const validateForm = () => {
-    if (!title || !date || !startTime || !endTime || !sessionSpeaker || !location || !address) {
+    if (!title || !date || !startTime || !endTime || !sessionChair || !location || !address) {
       return false;
     }
   
@@ -63,7 +63,7 @@ const AddEvent = ({ navigation }) => {
     const eventRef = ref(database, 'Session');
     const newEvent = {
       name: title, // Use 'name' as the title
-      description: sessionSpeaker, // Use 'description' for the session speaker
+      sessionChair: sessionChair, // Use 'description' for the session speaker
       date: date ? formatDate(date) : '', // Event date
       startTime: startTime ? formatTime(startTime) : '', // Event start time
       endTime: endTime ? formatTime(endTime) : '', // Event end time
@@ -192,8 +192,8 @@ const AddEvent = ({ navigation }) => {
           <TextInput 
             placeholder="Enter the Session Chair's Name"
             placeholderTextColor="#888888"
-            value={sessionSpeaker} 
-            onChangeText={setSessionSpeaker} 
+            value={sessionChair} 
+            onChangeText={setSessionChair} 
             style={styles.input} 
           />
 
