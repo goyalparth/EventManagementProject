@@ -101,6 +101,7 @@ const ProgramScreen = () => {
     navigation.navigate('EventDetails', {
       id: event.id,
       name: event.name,
+      track: event.track,
       sessionSpeaker: event.description,
       address: event.address,
       location: event.location,
@@ -183,7 +184,7 @@ const ProgramScreen = () => {
                   >
                     <EventsCard style={styles.eventSubList}
                       title={event.name} // Use event name
-                      label={event.startTime + " - " + event.endTime} // Use startTime and endTime from the database
+                      label={`${event.startTime} - ${event.endTime}\nTrack: ${event.track}`} 
                       isFavorite={event.isFavorite}
                       onFavoriteToggle={() => toggleFavorite(event.id)}
                     />

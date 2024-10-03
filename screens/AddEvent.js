@@ -7,6 +7,7 @@ import { ref, push } from 'firebase/database';
 
 const AddEvent = ({ navigation }) => {
   const [title, setTitle] = useState('');
+  const [selectedTrack, setSelectedTrack] = useState('');
   const [date, setDate] = useState(null); // Set initial state to null for placeholders
   const [startTime, setStartTime] = useState(null); // Set initial state to null for placeholders
   const [endTime, setEndTime] = useState(null); // Set initial state to null for placeholders
@@ -20,6 +21,8 @@ const AddEvent = ({ navigation }) => {
     paper3: { name: '', url: '' },
     paper4: { name: '', url: '' },
   });
+
+  
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
@@ -40,7 +43,7 @@ const AddEvent = ({ navigation }) => {
 
   // Validation function to check if any field is empty
   const validateForm = () => {
-    if (!title || !date || !startTime || !endTime || !sessionChair || !location || !address) {
+    if (!title || !selectedTrack || !date || !startTime || !endTime || !sessionChair || !location || !address) {
       return false;
     }
 
@@ -62,6 +65,7 @@ const AddEvent = ({ navigation }) => {
 
     const eventRef = ref(database, 'Session');
     const newEvent = {
+      track: selectedTrack,
       name: title, // Use 'name' as the title
       sessionChair: sessionChair, // Use 'description' for the session speaker
       date: date ? formatDate(date) : '', // Event date
@@ -77,6 +81,7 @@ const AddEvent = ({ navigation }) => {
       paper3_url: paperDetails.paper3.url, // Paper 3 URL
       paper4_name: paperDetails.paper4.name, // Paper 4 name
       paper4_url: paperDetails.paper4.url, // Paper 4 URL
+      
     };
 
     push(eventRef, newEvent)
@@ -102,7 +107,7 @@ const AddEvent = ({ navigation }) => {
 
   const handlePaperCountChange = (value) => {
     setPaperCount(value);
-  
+
     // Discard details of papers exceeding the selected paper count
     setPaperDetails((prevDetails) => {
       const updatedDetails = { ...prevDetails };
@@ -112,151 +117,180 @@ const AddEvent = ({ navigation }) => {
       return updatedDetails;
     });
   };
-  
+
 
   return (
     <View style={styles.main}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Create New Conference</Text>
       </View>
+  
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.label}>Session Name</Text>
-          <TextInput
-            placeholder="Enter Session Name"
-            placeholderTextColor="#888888"
-            value={title}
-            onChangeText={setTitle}
-            style={styles.input}
-          />
-
-          <Text style={styles.label}>Location</Text>
-          <TextInput
-            placeholder="Enter Event Location"
-            placeholderTextColor="#888888"
-            value={location}
-            onChangeText={setLocation}
-            style={styles.input}
-          />
-
-          <Text style={styles.label}>Address</Text>
-          <TextInput
-            placeholder="eg: Building 8, Room 10"
-            placeholderTextColor="#888888"
-            value={address}
-            onChangeText={setAddress}
-            style={styles.input}
-          />
-
-          <Text style={styles.label}>Date</Text>
-          <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePicker}>
-            <Text style={[styles.pickerText, !date && styles.placeholderText]}>
-              {date ? formatDate(date) : 'Enter Date'}
-            </Text>
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={date || new Date()} // Set initial value to current date
-              mode="date"
-              display="spinner" // Alert dialog style for Android
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) setDate(selectedDate);
-              }}
-            />
-          )}
-
-          <Text style={styles.label}>Start Time</Text>
-          <TouchableOpacity onPress={() => setShowStartTimePicker(true)} style={styles.datePicker}>
-            <Text style={[styles.pickerText, !startTime && styles.placeholderText]}>
-              {startTime ? formatTime(startTime) : 'Enter Start Time'}
-            </Text>
-          </TouchableOpacity>
-          {showStartTimePicker && (
-            <DateTimePicker
-              value={startTime || new Date()} // Set initial value to current time
-              mode="time"
-              display="spinner"
-              onChange={(event, selectedTime) => {
-                setShowStartTimePicker(false);
-                if (selectedTime) setStartTime(selectedTime);
-              }}
-            />
-          )}
-
-          <Text style={styles.label}>End Time</Text>
-          <TouchableOpacity onPress={() => setShowEndTimePicker(true)} style={styles.datePicker}>
-            <Text style={[styles.pickerText, !endTime && styles.placeholderText]}>
-              {endTime ? formatTime(endTime) : 'Enter End Time'}
-            </Text>
-          </TouchableOpacity>
-          {showEndTimePicker && (
-            <DateTimePicker
-              value={endTime || new Date()} // Set initial value to current time
-              mode="time"
-              display="spinner"
-              onChange={(event, selectedTime) => {
-                setShowEndTimePicker(false);
-                if (selectedTime) setEndTime(selectedTime);
-              }}
-            />
-          )}
-
-          <Text style={styles.label}>Session Chair</Text>
-          <TextInput
-            placeholder="Enter the Session Chair's Name"
-            placeholderTextColor="#888888"
-            value={sessionChair}
-            onChangeText={setSessionChair}
-            style={styles.input}
-          />
-
-          {/* Paper Count Picker */}
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>Number of Papers</Text>
-            <View style={styles.picker}>
-              <Picker
-                selectedValue={paperCount}
-                onValueChange={(itemValue) => handlePaperCountChange(itemValue)}
-                style={{ height: 50, width: 120, color: '#000' }} // Adjust the size
-              >
-                <Picker.Item label="1" value={1} />
-                <Picker.Item label="2" value={2} />
-                <Picker.Item label="3" value={3} />
-                <Picker.Item label="4" value={4} />
-              </Picker>
-
-            </View>
+          {/* Track Picker */}
+          <Text style={styles.label}>Track</Text>
+          <View style={styles.picker}>
+            <Picker
+              selectedValue={selectedTrack}
+              onValueChange={(itemValue) => setSelectedTrack(itemValue)}
+              
+            >
+              <Picker.Item label="Select Track" value="" /> 
+              <Picker.Item label="General Track" value="General Track" />
+              <Picker.Item label="Emerging Technologies in IS" value="Emerging Technologies in IS" />
+              <Picker.Item label="Strategy, Governance, and Leadership" value="Strategy, Governance, and Leadership" />
+              <Picker.Item label="Digital Innovation, Transformation, Business Models and Future of Work" value="Digital Innovation, Transformation, Business Models and Future of Work" />
+              <Picker.Item label="Information Security Management, Privacy, Ethics and the Dark Side of Information Systems" value="Information Security Management, Privacy, Ethics and the Dark Side of Information Systems" />
+              <Picker.Item label="Data Analytics, Artificial Intelligence, and Strategic Decision Making" value="Data Analytics, Artificial Intelligence, and Strategic Decision Making" />
+              <Picker.Item label="Digital Health Care" value="Digital Health Care" />
+              <Picker.Item label="Information Systems Education in a Disruptive World" value="Information Systems Education in a Disruptive World" />
+              <Picker.Item label="Crowds, Social Media, Digital Collaboration, and Fake News" value="Crowds, Social Media, Digital Collaboration, and Fake News" />
+              <Picker.Item label="Digital Innovation for the Common Good" value="Digital Innovation for the Common Good" />
+              <Picker.Item label="Digital Government and Sustainable Technology" value="Digital Government and Sustainable Technology" />
+              <Picker.Item label="Digital Ecosystems and Technologies Evolving in the Fast Changing Ecological World" value="Digital Ecosystems and Technologies Evolving in the Fast Changing Ecological World" />
+              <Picker.Item label="Digital Inequality and its Implication to Society and the Community" value="Digital Inequality and its Implication to Society and the Community" />
+              <Picker.Item label="IS Research in Marginalized and Indigenous Contexts" value="IS Research in Marginalized and Indigenous Contexts" />
+              <Picker.Item label="Decolonizing Information Systems Research" value="Decolonizing Information Systems Research" />
+              <Picker.Item label="The Role of Open Source in the Digital Future (Sponsored)" value="The Role of Open Source in the Digital Future (Sponsored)" />
+            </Picker>
           </View>
+          
+            <Text style={styles.label}>Session Name</Text>
+            <TextInput
+              placeholder="Enter Session Name"
+              placeholderTextColor="#888888"
+              value={title}
+              onChangeText={setTitle}
+              style={styles.input}
+            />
 
-          {/* Render Paper Details based on paperCount */}
-          {Array.from({ length: paperCount }).map((_, index) => (
-            <View key={index}>
-              <Text style={styles.label}>Paper {index + 1} Details</Text>
-              <TextInput
-                placeholder="Enter Paper Name"
-                placeholderTextColor="#888888"
-                value={paperDetails[`paper${index + 1}`].name}
-                onChangeText={(value) => handlePaperDetailsChange(index + 1, 'name', value)}
-                style={styles.input}
+            <Text style={styles.label}>Location</Text>
+            <TextInput
+              placeholder="Enter Event Location"
+              placeholderTextColor="#888888"
+              value={location}
+              onChangeText={setLocation}
+              style={styles.input}
+            />
+
+            <Text style={styles.label}>Address</Text>
+            <TextInput
+              placeholder="eg: Building 8, Room 10"
+              placeholderTextColor="#888888"
+              value={address}
+              onChangeText={setAddress}
+              style={styles.input}
+            />
+
+            <Text style={styles.label}>Date</Text>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePicker}>
+              <Text style={[styles.pickerText, !date && styles.placeholderText]}>
+                {date ? formatDate(date) : 'Enter Date'}
+              </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={date || new Date()} // Set initial value to current date
+                mode="date"
+                display="spinner" // Alert dialog style for Android
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) setDate(selectedDate);
+                }}
               />
-              <TextInput
-                placeholder="Enter Paper URL"
-                placeholderTextColor="#888888"
-                value={paperDetails[`paper${index + 1}`].url}
-                onChangeText={(value) => handlePaperDetailsChange(index + 1, 'url', value)}
-                style={styles.input}
+            )}
+
+            <Text style={styles.label}>Start Time</Text>
+            <TouchableOpacity onPress={() => setShowStartTimePicker(true)} style={styles.datePicker}>
+              <Text style={[styles.pickerText, !startTime && styles.placeholderText]}>
+                {startTime ? formatTime(startTime) : 'Enter Start Time'}
+              </Text>
+            </TouchableOpacity>
+            {showStartTimePicker && (
+              <DateTimePicker
+                value={startTime || new Date()} // Set initial value to current time
+                mode="time"
+                display="spinner"
+                onChange={(event, selectedTime) => {
+                  setShowStartTimePicker(false);
+                  if (selectedTime) setStartTime(selectedTime);
+                }}
               />
+            )}
+
+            <Text style={styles.label}>End Time</Text>
+            <TouchableOpacity onPress={() => setShowEndTimePicker(true)} style={styles.datePicker}>
+              <Text style={[styles.pickerText, !endTime && styles.placeholderText]}>
+                {endTime ? formatTime(endTime) : 'Enter End Time'}
+              </Text>
+            </TouchableOpacity>
+            {showEndTimePicker && (
+              <DateTimePicker
+                value={endTime || new Date()} // Set initial value to current time
+                mode="time"
+                display="spinner"
+                onChange={(event, selectedTime) => {
+                  setShowEndTimePicker(false);
+                  if (selectedTime) setEndTime(selectedTime);
+                }}
+              />
+            )}
+
+            <Text style={styles.label}>Session Chair</Text>
+            <TextInput
+              placeholder="Enter the Session Chair's Name"
+              placeholderTextColor="#888888"
+              value={sessionChair}
+              onChangeText={setSessionChair}
+              style={styles.input}
+            />
+
+            {/* Paper Count Picker */}
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Number of Papers</Text>
+              <View style={styles.picker}>
+                <Picker
+                  selectedValue={paperCount}
+                  onValueChange={(itemValue) => handlePaperCountChange(itemValue)}
+                  style={{ height: 50, width: 120, color: '#000' }} // Adjust the size
+                >
+                  <Picker.Item label="1" value={1} />
+                  <Picker.Item label="2" value={2} />
+                  <Picker.Item label="3" value={3} />
+                  <Picker.Item label="4" value={4} />
+                </Picker>
+
+              </View>
             </View>
-          ))}
 
-          <TouchableOpacity onPress={addEvent} style={styles.addButton}>
-            <Text style={styles.addButtonText}>ADD</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={navigation.goBack} style={styles.cancelButton}>
-            <Text style={styles.addButtonText}>CANCEL</Text>
-          </TouchableOpacity>
-        </ScrollView>
+            {/* Render Paper Details based on paperCount */}
+            {Array.from({ length: paperCount }).map((_, index) => (
+              <View key={index}>
+                <Text style={styles.label}>Paper {index + 1} Details</Text>
+                <TextInput
+                  placeholder="Enter Paper Name"
+                  placeholderTextColor="#888888"
+                  value={paperDetails[`paper${index + 1}`].name}
+                  onChangeText={(value) => handlePaperDetailsChange(index + 1, 'name', value)}
+                  style={styles.input}
+                />
+                <TextInput
+                  placeholder="Enter Paper URL"
+                  placeholderTextColor="#888888"
+                  value={paperDetails[`paper${index + 1}`].url}
+                  onChangeText={(value) => handlePaperDetailsChange(index + 1, 'url', value)}
+                  style={styles.input}
+                />
+              </View>
+            ))}
+
+            <TouchableOpacity onPress={addEvent} style={styles.addButton}>
+              <Text style={styles.addButtonText}>ADD</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={navigation.goBack} style={styles.cancelButton}>
+              <Text style={styles.addButtonText}>CANCEL</Text>
+            </TouchableOpacity>
+          </ScrollView>
       </View>
     </View>
   );
