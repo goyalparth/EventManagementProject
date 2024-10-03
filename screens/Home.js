@@ -10,7 +10,7 @@ const HomeScreen = () => {
 
   // Fetch events from Firebase Realtime Database
   useEffect(() => {
-    const eventsRef = ref(database, 'events'); // Reference to 'events' node in Firebase
+    const eventsRef = ref(database, 'Session'); // Reference to 'events' node in Firebase
 
     // Listen for changes in the 'events' node
     const unsubscribe = onValue(eventsRef, (snapshot) => {
@@ -19,18 +19,25 @@ const HomeScreen = () => {
         // Convert fetched events to an array and parse the date and time
         let fetchedEvents = Object.keys(data).map((key) => ({
           id: key,
-          title: data[key].title,
+          title: data[key].name,
+          track: data[key].track, 
           date: data[key].date,
           startTime: data[key].startTime,
           endTime: data[key].endTime,
+          // dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
           dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
+          endDateTime: new Date(`${data[key].date}T${data[key].endTime}`), // Combined date and end time for filtering
         }));
 
         // Sort events by date and time (earliest first)
         fetchedEvents.sort((a, b) => a.dateTime - b.dateTime);
 
+        // Filter out events that have already ended
+        const now = new Date(); // Get the current date and time
+        const upcomingEvents = fetchedEvents.filter(event => event.endDateTime > now); // Only include upcoming events
+
         // Limit to 4 events
-        const limitedEvents = fetchedEvents.slice(0, 4);
+        const limitedEvents = upcomingEvents.slice(0, 4);
 
         setEvents(limitedEvents); // Update state with sorted and limited events
       } else {
@@ -69,6 +76,7 @@ const HomeScreen = () => {
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.details}>Date: {item.date}</Text>
           <Text style={styles.details}>Duration: {item.startTime} - {item.endTime}</Text>
+          <Text style={styles.details}>Track: {item.track}</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -106,7 +114,7 @@ const HomeScreen = () => {
         </View>
 
         {/* Upcoming Conferences Section */}
-        <Text style={styles.sectionHeader}>UPCOMING CONFERENCES</Text>
+        <Text style={styles.sectionHeader}>UPCOMING SESSIONS</Text>
         <FlatList
           data={events}
           renderItem={renderItem}

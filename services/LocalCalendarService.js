@@ -1,19 +1,43 @@
-// LocalCalendarService.js
-
 import RNCalendarEvents from 'react-native-calendar-events';
+import { PermissionsAndroid, Platform } from 'react-native';
 
-export const listCalendars = async () => {
-  try {
-    const calendars = await RNCalendarEvents.findCalendars();
-    return calendars;
-  } catch (error) {
-    console.error(error);
+// Function to request calendar permissions
+const requestCalendarPermissions = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.READ_CALENDAR,
+      PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
+    ]);
+    return (
+      granted[PermissionsAndroid.PERMISSIONS.READ_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED &&
+      granted[PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED
+    );
+  } else {
+    // For iOS, permissions are handled via Info.plist
+    return true; // Assuming permission granted for demonstration
   }
 };
 
+// Function to list calendars
+export const listCalendars = async () => {
+  try {
+    const hasPermission = await requestCalendarPermissions();
+    if (!hasPermission) {
+      console.log('Calendar permission denied');
+      return [];
+    }
+    const calendars = await RNCalendarEvents.findCalendars();
+    return calendars;
+  } catch (error) {
+    console.error('Error fetching calendars:', error);
+    return [];
+  }
+};
+
+// Function to add a calendar event
 export const addCalendarEvent = async (event, calendar) => {
   try {
-    const eventId = await RNCalendarEvents.saveEvent(event.title, {
+    const eventId = await RNCalendarEvents.saveEvent(event.name, {
       startDate: event.startDate,
       endDate: event.endDate,
       description: event.description,
@@ -21,7 +45,7 @@ export const addCalendarEvent = async (event, calendar) => {
     });
     return eventId; // Return the event ID
   } catch (error) {
-    console.error(error);
+    console.error('Error adding calendar event:', error);
   }
 };
 
@@ -30,6 +54,21 @@ export const removeCalendarEvent = async (eventId) => {
   try {
     await RNCalendarEvents.removeEvent(eventId);
   } catch (error) {
-    console.error(error);
+    console.error('Error removing calendar event:', error);
+  }
+};
+
+// Function to fetch all events from the calendar
+export const fetchAllEvents = async (startDate, endDate) => {
+  try {
+    const hasPermission = await requestCalendarPermissions();
+    if (!hasPermission) {
+      console.log('Calendar permission denied');
+      return [];
+    }
+    const events = await RNCalendarEvents.fetchAllEvents(startDate, endDate);
+    return events;
+  } catch (error) {
+    console.error('Error fetching calendar events:', error);
   }
 };

@@ -9,18 +9,28 @@ import {
   Text,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { listCalendars } from '../services/LocalCalendarService';
+import { listCalendars, fetchAllEvents } from '../services/LocalCalendarService';
 
 const LocalCalendarModalComponent = (props) => {
   const [calendars, setCalendars] = useState([]);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const loadCalendars = async () => {
       const calendarsTmp = await listCalendars();
       setCalendars(calendarsTmp);
     };
+
+    const loadEvents = async () => {
+      const startDate = new Date().toISOString(); // Example start date
+      const endDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(); // Example end date
+      const fetchedEvents = await fetchAllEvents(startDate, endDate);
+      setEvents(fetchedEvents);
+    };
+
     if (props.isVisible) {
       loadCalendars();
+      loadEvents();
     }
   }, [props.isVisible]);
 
@@ -37,34 +47,33 @@ const LocalCalendarModalComponent = (props) => {
             <Text style={styles.title}>{props.label} :</Text>
             <View style={styles.agendaList}>
               <ScrollView>
-                {calendars.map((calendar, i) =>
-                  calendar.allowsModifications ? (
+                {calendars.length > 0 ? (
+                  calendars.map((calendar, i) => (
                     <TouchableOpacity
                       key={i}
                       onPress={() => props.handleCalendarSelected(calendar)}
                       style={[
                         styles.calendarOption,
-                        { backgroundColor: calendar.color },
+                        { backgroundColor: calendar.allowsModifications ? calendar.color : '#d3d3d3' },
                       ]}
+                      disabled={!calendar.allowsModifications}
                     >
-                      <Text key={i} style={[styles.defaultText]}>
-                        {calendar.title}
+                      <Text style={[styles.defaultText, { color: calendar.allowsModifications ? '#000' : '#888' }]}>
+                        {calendar.title} {calendar.allowsModifications ? '' : '(Read-only)'}
                       </Text>
                     </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      key={i}
-                      disabled={true}
-                      style={[
-                        styles.calendarOption,
-                        { backgroundColor: '#d3d3d3' }, // Grey out non-modifiable calendars
-                      ]}
-                    >
-                      <Text key={i} style={[styles.defaultText, { color: '#888' }]}>
-                        {calendar.title} (Read-only)
-                      </Text>
-                    </TouchableOpacity>
-                  )
+                  ))
+                ) : (
+                  <Text style={styles.defaultText}>No calendars found</Text>
+                )}
+                {/* Optional: Displaying fetched events */}
+                <Text style={styles.title}>Fetched Events:</Text>
+                {events.length > 0 ? (
+                  events.map((event, i) => (
+                    <Text key={i} style={styles.defaultText}>{event.title}</Text>
+                  ))
+                ) : (
+                  <Text style={styles.defaultText}>No events found</Text>
                 )}
               </ScrollView>
             </View>

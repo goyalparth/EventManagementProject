@@ -15,9 +15,9 @@ const ProgramScreen = () => {
 
   // Fetch events from Firebase Realtime Database
   useEffect(() => {
-    const eventsRef = ref(database, 'events'); // Reference to 'events' node in Firebase
+    const eventsRef = ref(database, 'Session'); // Reference to 'Session' node in Firebase
 
-    // Listen for changes in the 'events' node
+    // Listen for changes in the 'Session' node
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val(); // Get the data snapshot
       if (data) {
@@ -96,9 +96,25 @@ const ProgramScreen = () => {
 
   const weekDates = getWeekDates();
 
-  // Handle navigation to event details
-  const handleNavigate = (id, paperName, sessionSpeaker, address, date, endTime) => {
-    navigation.navigate('EventDetails', { id, paperName, sessionSpeaker, address, date, endTime });
+  // Handle navigation to event details, passing all necessary event information
+  const handleNavigate = (event) => {
+    navigation.navigate('EventDetails', {
+      id: event.id,
+      name: event.name,
+      track: event.track,
+      sessionSpeaker: event.description,
+      address: event.address,
+      location: event.location,
+      date: event.date,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      papers: [
+        { name: event.paper1_name, url: event.paper1_url },
+        { name: event.paper2_name, url: event.paper2_url },
+        { name: event.paper3_name, url: event.paper3_url },
+        { name: event.paper4_name, url: event.paper4_url },
+      ],
+    });
   };
 
   // Handle event deletion
@@ -109,7 +125,7 @@ const ProgramScreen = () => {
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Delete', onPress: async () => {
-          const eventRef = ref(database, `events/${id}`);
+          const eventRef = ref(database, `Session/${id}`);
           await remove(eventRef); // Remove event from Firebase
           setFilteredEvents(filteredEvents.filter(event => event.id !== id)); // Remove from the filtered list
         }, style: 'destructive' }
@@ -164,11 +180,11 @@ const ProgramScreen = () => {
                   renderRightActions={() => renderRightActions(event.id)} // Show delete on swipe
                 >
                   <TouchableOpacity
-                    onPress={() => handleNavigate(event.id, event.paperName, event.sessionSpeaker, event.address, event.date, event.endTime)} // Navigate to event details
+                    onPress={() => handleNavigate(event)} // Navigate to event details with the full event object
                   >
                     <EventsCard style={styles.eventSubList}
-                      title={event.title} // Use paperName from the database
-                      label={event.startTime + " - " + event.endTime} // Use startTime and endTime from the database
+                      title={event.name} // Use event name
+                      label={`${event.startTime} - ${event.endTime}\nTrack: ${event.track}`} 
                       isFavorite={event.isFavorite}
                       onFavoriteToggle={() => toggleFavorite(event.id)}
                     />

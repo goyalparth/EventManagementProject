@@ -76,24 +76,24 @@ export default function App() {
         })}
       />
       <Drawer.Screen
-        name="Program"
+        name="Sessions"
         component={ProgramStack}
         options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
-            handleNavigationReset(navigation, 'Program');
+            handleNavigationReset(navigation, 'Sessions');
           },
         })}
       />
       <Drawer.Screen
-        name="Organisers"
+        name="Committee"
         component={OrganisersScreen}
         options={screenOptions}
         listeners={({ navigation }) => ({
           drawerItemPress: (e) => {
             e.preventDefault();
-            handleNavigationReset(navigation, 'Organisers');
+            handleNavigationReset(navigation, 'Committee');
           },
         })}
       />

@@ -21,20 +21,20 @@ const EventDetailsScreen = ({ route }) => {
     const fetchCalendarPermissions = async () => {
       if (Platform.OS === 'android') {
         try {
-          const granted = await PermissionsAndroid.request(
+          // Request both read and write permissions
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.READ_CALENDAR,
             PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
-            {
-              title: 'Calendar Permission',
-              message: 'This app needs access to your calendar to add events.',
-              buttonNeutral: 'Ask Me Later',
-              buttonNegative: 'Cancel',
-              buttonPositive: 'OK',
-            }
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('Calendar permission granted');
+          ]);
+
+          // Check the granted permissions
+          if (
+            granted[PermissionsAndroid.PERMISSIONS.READ_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED &&
+            granted[PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED
+          ) {
+            console.log('Calendar permissions granted');
           } else {
-            console.log('Calendar permission denied');
+            console.log('Calendar permissions denied');
           }
         } catch (err) {
           console.warn(err);
@@ -44,34 +44,46 @@ const EventDetailsScreen = ({ route }) => {
 
     fetchCalendarPermissions();
 
-    const eventRef = ref(database, `events/${id}`);
+
+    const eventRef = ref(database, `Session/${id}`);
     const unsubscribe = onValue(eventRef, async (snapshot) => {
       const eventData = snapshot.val();
       if (eventData) {
+        console.log('Fetched event data:', eventData); // Log data for debugging
         const startDate = eventData.startDate || `${eventData.date} ${eventData.startTime}`;
         const endDate = eventData.endDate || `${eventData.date} ${eventData.endTime}`;
-        
+
         setEvent({ ...eventData, startDate, endDate });
-        setPapers(Object.entries(eventData)
-          .filter(([key]) => key.startsWith('paper') && eventData[key]?.name && eventData[key]?.url)
-          .map(([_, value]) => value));
-        
-        await checkIfEventExistsInCalendar(eventData.title, startDate, endDate);
+
+        // Extracting papers
+        const papers = [];
+        for (let i = 1; i <= 4; i++) {
+          const name = eventData[`paper${i}_name`];
+          const url = eventData[`paper${i}_url`];
+          if (name && url) {
+            papers.push({ name, url });
+          }
+        }
+        setPapers(papers);
+
+        await checkIfEventExistsInCalendar(eventData.name, startDate, endDate);
       } else {
         console.log('No event found for ID:', id);
       }
     });
 
+
+
     return () => unsubscribe();
   }, [id]);
 
-  const checkIfEventExistsInCalendar = async (title, startDate, endDate) => {
+  const checkIfEventExistsInCalendar = async (name, startDate, endDate) => {
     try {
       const events = await RNCalendarEvents.fetchAllEvents(new Date(startDate).getTime(), new Date(endDate).getTime());
-      const eventExists = events.some(event => event.title === title);
+      const eventExists = events.some(event => event.title === name);
       setIsEventInCalendar(eventExists);
       if (eventExists) {
-        const existingEvent = events.find(event => event.title === title);
+        const existingEvent = events.find(event => event.title === name);
         setLocalCalendarId(existingEvent.id); // Store the calendar ID for future reference
       }
     } catch (error) {
@@ -81,7 +93,7 @@ const EventDetailsScreen = ({ route }) => {
 
   const handleFavoritePress = async () => {
     const { isFavorite } = getEventStatus(id);
-    
+
     if (isEventInCalendar) {
       // Remove from favorites and calendar
       toggleFavorite(id); // Mark as not favorite
@@ -101,12 +113,12 @@ const EventDetailsScreen = ({ route }) => {
       toggleFavorite(id);
       if (event) { // Ensure event exists
         const eventObj = {
-          title: event.title,
+          name: event.name,
           startDate: event.startDate,
           endDate: event.endDate,
           description: `Location: ${event.location}\nAddress: ${event.address}`,
         };
-        
+
         setCalendarModalVisible(true); // Open the calendar modal to save the event
         Toast.show({
           type: 'success',
@@ -123,17 +135,41 @@ const EventDetailsScreen = ({ route }) => {
   const saveEvent = async (calendar) => {
     if (!event || !event.startDate || !event.endDate) {
       console.error('Event is missing or dates are invalid:', event);
-      return; 
+      return;
     }
 
     const startDate = new Date(event.startDate).toISOString();
     const endDate = new Date(event.endDate).toISOString();
 
+    // Create the description for the calendar event
+    const descriptionParts = [
+      `Track: ${event.track || 'N/A'}`,
+      `Session Chair: ${event.sessionChair || 'N/A'}`,
+      `Location: ${event.location || 'N/A'}`,
+      `Address: ${event.address || 'N/A'}`,
+
+    ];
+
+    // Add paper details to the description
+    for (let i = 1; i <= 4; i++) {
+      const paperName = event[`paper${i}_name`];
+      const paperUrl = event[`paper${i}_url`];
+
+      if (paperName) {
+        descriptionParts.push(`Paper ${i}: ${paperName}`);
+        if (paperUrl) {
+          descriptionParts.push(`URL: ${paperUrl}`);
+        }
+      }
+    }
+
+    const description = descriptionParts.join('\n'); // Combine all parts into a single string
+
     try {
-      const calendarId = await RNCalendarEvents.saveEvent(event.title, {
+      const calendarId = await RNCalendarEvents.saveEvent(event.name, {
         startDate,
         endDate,
-        notes: event.description,
+        description, // Use the structured description
         calendarId: calendar.id,
       });
 
@@ -195,7 +231,7 @@ const EventDetailsScreen = ({ route }) => {
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.title}>{event.title}</Text>
+          <Text style={styles.title}>{event.name}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <Image
               source={isEventInCalendar ? require('../images/heart-filled.png') : require('../images/heart-empty.png')}
@@ -205,6 +241,16 @@ const EventDetailsScreen = ({ route }) => {
         </View>
 
         <View style={styles.cardContainer}>
+
+        <View style={styles.card}>
+            <View style={styles.iconLabelContainer}>
+              <Image source={require('../images/tracks-icon.png')} style={styles.icon} />
+              <View>
+                <Text style={styles.label}>{event.track}</Text>
+                <Text style={styles.subLabel}>Track</Text>
+              </View>
+            </View>
+          </View>
           <View style={styles.card}>
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/calendar-icon.png')} style={styles.icon} />
@@ -229,11 +275,13 @@ const EventDetailsScreen = ({ route }) => {
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/speaker-icon.png')} style={styles.icon} />
               <View>
-                <Text style={styles.label}>{event.sessionSpeaker}</Text>
+                <Text style={styles.label}>{event.sessionChair}</Text>
                 <Text style={styles.subLabel}>Session Chair</Text>
               </View>
             </View>
           </View>
+
+          
 
           {papers && papers.length > 0 && (
             <View style={styles.infoContainer}>

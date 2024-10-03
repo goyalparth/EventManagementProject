@@ -247,7 +247,7 @@ const handlePress = (url) => {
     <View style={{ flex: 1, backgroundColor: '#304067' }}>
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>ORGANISING COMMITTEE</Text>
+        <Text style={styles.headerText}>CONFERENCE COMMITTEE</Text>
       </View>
       <View style={styles.card}>
         {committeeData.map((section, index) => (
@@ -288,6 +288,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     color: '#FCFAF8', // Same header text color
+    fontWeight:'bold',
   },
   card: {
     backgroundColor: '#fff',
