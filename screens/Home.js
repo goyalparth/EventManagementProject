@@ -23,14 +23,20 @@ const HomeScreen = () => {
           date: data[key].date,
           startTime: data[key].startTime,
           endTime: data[key].endTime,
+          // dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
           dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
+          endDateTime: new Date(`${data[key].date}T${data[key].endTime}`), // Combined date and end time for filtering
         }));
 
         // Sort events by date and time (earliest first)
         fetchedEvents.sort((a, b) => a.dateTime - b.dateTime);
 
+        // Filter out events that have already ended
+        const now = new Date(); // Get the current date and time
+        const upcomingEvents = fetchedEvents.filter(event => event.endDateTime > now); // Only include upcoming events
+
         // Limit to 4 events
-        const limitedEvents = fetchedEvents.slice(0, 4);
+        const limitedEvents = upcomingEvents.slice(0, 4);
 
         setEvents(limitedEvents); // Update state with sorted and limited events
       } else {

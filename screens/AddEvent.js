@@ -43,7 +43,7 @@ const AddEvent = ({ navigation }) => {
     if (!title || !date || !startTime || !endTime || !sessionChair || !location || !address) {
       return false;
     }
-  
+
     for (let i = 1; i <= paperCount; i++) {
       if (!paperDetails[`paper${i}`].name || !paperDetails[`paper${i}`].url) {
         return false;
@@ -51,7 +51,7 @@ const AddEvent = ({ navigation }) => {
     }
     return true;
   };
-  
+
 
   const addEvent = () => {
     // Check if the form is valid
@@ -59,7 +59,7 @@ const AddEvent = ({ navigation }) => {
       Alert.alert('Error', 'Please fill out all fields before adding the event.');
       return;
     }
-  
+
     const eventRef = ref(database, 'Session');
     const newEvent = {
       name: title, // Use 'name' as the title
@@ -78,7 +78,7 @@ const AddEvent = ({ navigation }) => {
       paper4_name: paperDetails.paper4.name, // Paper 4 name
       paper4_url: paperDetails.paper4.url, // Paper 4 URL
     };
-  
+
     push(eventRef, newEvent)
       .then(() => {
         Alert.alert('Success', 'Event added successfully!');
@@ -88,7 +88,7 @@ const AddEvent = ({ navigation }) => {
         Alert.alert('Error', `Error adding event: ${error.message}`);
       });
   };
-  
+
 
   const handlePaperDetailsChange = (paperNumber, field, value) => {
     setPaperDetails((prevDetails) => ({
@@ -100,6 +100,20 @@ const AddEvent = ({ navigation }) => {
     }));
   };
 
+  const handlePaperCountChange = (value) => {
+    setPaperCount(value);
+  
+    // Discard details of papers exceeding the selected paper count
+    setPaperDetails((prevDetails) => {
+      const updatedDetails = { ...prevDetails };
+      for (let i = value + 1; i <= 4; i++) {
+        updatedDetails[`paper${i}`] = { name: '', url: '' };
+      }
+      return updatedDetails;
+    });
+  };
+  
+
   return (
     <View style={styles.main}>
       <View style={styles.headerContainer}>
@@ -107,31 +121,31 @@ const AddEvent = ({ navigation }) => {
       </View>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.label}>Track Name</Text>
-          <TextInput 
-            placeholder="Enter the name of the Track"
+          <Text style={styles.label}>Session Name</Text>
+          <TextInput
+            placeholder="Enter Session Name"
             placeholderTextColor="#888888"
-            value={title} 
-            onChangeText={setTitle} 
-            style={styles.input} 
+            value={title}
+            onChangeText={setTitle}
+            style={styles.input}
           />
 
           <Text style={styles.label}>Location</Text>
-          <TextInput 
-            placeholder="Select Event Location"
+          <TextInput
+            placeholder="Enter Event Location"
             placeholderTextColor="#888888"
-            value={location} 
-            onChangeText={setLocation} 
-            style={styles.input} 
+            value={location}
+            onChangeText={setLocation}
+            style={styles.input}
           />
 
           <Text style={styles.label}>Address</Text>
-          <TextInput 
+          <TextInput
             placeholder="eg: Building 8, Room 10"
             placeholderTextColor="#888888"
-            value={address} 
-            onChangeText={setAddress} 
-            style={styles.input} 
+            value={address}
+            onChangeText={setAddress}
+            style={styles.input}
           />
 
           <Text style={styles.label}>Date</Text>
@@ -189,12 +203,12 @@ const AddEvent = ({ navigation }) => {
           )}
 
           <Text style={styles.label}>Session Chair</Text>
-          <TextInput 
+          <TextInput
             placeholder="Enter the Session Chair's Name"
             placeholderTextColor="#888888"
-            value={sessionChair} 
-            onChangeText={setSessionChair} 
-            style={styles.input} 
+            value={sessionChair}
+            onChangeText={setSessionChair}
+            style={styles.input}
           />
 
           {/* Paper Count Picker */}
@@ -203,7 +217,7 @@ const AddEvent = ({ navigation }) => {
             <View style={styles.picker}>
               <Picker
                 selectedValue={paperCount}
-                onValueChange={(itemValue) => setPaperCount(itemValue)}
+                onValueChange={(itemValue) => handlePaperCountChange(itemValue)}
                 style={{ height: 50, width: 120, color: '#000' }} // Adjust the size
               >
                 <Picker.Item label="1" value={1} />
@@ -211,6 +225,7 @@ const AddEvent = ({ navigation }) => {
                 <Picker.Item label="3" value={3} />
                 <Picker.Item label="4" value={4} />
               </Picker>
+
             </View>
           </View>
 
@@ -249,7 +264,7 @@ const AddEvent = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   main: {
-    backgroundColor:'#304067',
+    backgroundColor: '#304067',
   },
   headerContainer: {
     paddingVertical: 10,

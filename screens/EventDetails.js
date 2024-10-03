@@ -134,20 +134,43 @@ const EventDetailsScreen = ({ route }) => {
 
   const saveEvent = async (calendar) => {
     if (!event || !event.startDate || !event.endDate) {
-      console.error('Event is missing or dates are invalid:', event);
-      return;
+        console.error('Event is missing or dates are invalid:', event);
+        return;
     }
 
     const startDate = new Date(event.startDate).toISOString();
     const endDate = new Date(event.endDate).toISOString();
 
+    // Create the description for the calendar event
+    const descriptionParts = [
+        `Session Chair: ${event.sessionChair || 'N/A'}`,
+        `Location: ${event.location || 'N/A'}`,
+        `Address: ${event.address || 'N/A'}`,
+        
+    ];
+
+    // Add paper details to the description
+    for (let i = 1; i <= 4; i++) {
+        const paperName = event[`paper${i}_name`];
+        const paperUrl = event[`paper${i}_url`];
+
+        if (paperName) {
+            descriptionParts.push(`Paper ${i}: ${paperName}`);
+            if (paperUrl) {
+                descriptionParts.push(`URL: ${paperUrl}`);
+            }
+        }
+    }
+
+    const description = descriptionParts.join('\n'); // Combine all parts into a single string
+
     try {
-      const calendarId = await RNCalendarEvents.saveEvent(event.name, {
-        startDate,
-        endDate,
-        notes: event.description,
-        calendarId: calendar.id,
-      });
+        const calendarId = await RNCalendarEvents.saveEvent(event.name, {
+            startDate,
+            endDate,
+            description, // Use the structured description
+            calendarId: calendar.id,
+        });
 
       setCalendarId(id, calendarId);
       setLocalCalendarId(calendarId); // Store the new calendar ID
