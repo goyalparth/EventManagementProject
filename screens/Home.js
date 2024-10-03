@@ -20,6 +20,7 @@ const HomeScreen = () => {
         let fetchedEvents = Object.keys(data).map((key) => ({
           id: key,
           title: data[key].name,
+          track: data[key].track, 
           date: data[key].date,
           startTime: data[key].startTime,
           endTime: data[key].endTime,
@@ -75,6 +76,7 @@ const HomeScreen = () => {
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.details}>Date: {item.date}</Text>
           <Text style={styles.details}>Duration: {item.startTime} - {item.endTime}</Text>
+          <Text style={styles.details}>Track: {item.track}</Text>
         </View>
       </TouchableOpacity>
     </View>

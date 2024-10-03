@@ -26,7 +26,7 @@ const EventDetailsScreen = ({ route }) => {
             PermissionsAndroid.PERMISSIONS.READ_CALENDAR,
             PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR,
           ]);
-          
+
           // Check the granted permissions
           if (
             granted[PermissionsAndroid.PERMISSIONS.READ_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED &&
@@ -41,10 +41,10 @@ const EventDetailsScreen = ({ route }) => {
         }
       }
     };
-  
+
     fetchCalendarPermissions();
 
-  
+
     const eventRef = ref(database, `Session/${id}`);
     const unsubscribe = onValue(eventRef, async (snapshot) => {
       const eventData = snapshot.val();
@@ -134,8 +134,8 @@ const EventDetailsScreen = ({ route }) => {
 
   const saveEvent = async (calendar) => {
     if (!event || !event.startDate || !event.endDate) {
-        console.error('Event is missing or dates are invalid:', event);
-        return;
+      console.error('Event is missing or dates are invalid:', event);
+      return;
     }
 
     const startDate = new Date(event.startDate).toISOString();
@@ -143,34 +143,35 @@ const EventDetailsScreen = ({ route }) => {
 
     // Create the description for the calendar event
     const descriptionParts = [
-        `Session Chair: ${event.sessionChair || 'N/A'}`,
-        `Location: ${event.location || 'N/A'}`,
-        `Address: ${event.address || 'N/A'}`,
-        
+      `Track: ${event.track || 'N/A'}`,
+      `Session Chair: ${event.sessionChair || 'N/A'}`,
+      `Location: ${event.location || 'N/A'}`,
+      `Address: ${event.address || 'N/A'}`,
+
     ];
 
     // Add paper details to the description
     for (let i = 1; i <= 4; i++) {
-        const paperName = event[`paper${i}_name`];
-        const paperUrl = event[`paper${i}_url`];
+      const paperName = event[`paper${i}_name`];
+      const paperUrl = event[`paper${i}_url`];
 
-        if (paperName) {
-            descriptionParts.push(`Paper ${i}: ${paperName}`);
-            if (paperUrl) {
-                descriptionParts.push(`URL: ${paperUrl}`);
-            }
+      if (paperName) {
+        descriptionParts.push(`Paper ${i}: ${paperName}`);
+        if (paperUrl) {
+          descriptionParts.push(`URL: ${paperUrl}`);
         }
+      }
     }
 
     const description = descriptionParts.join('\n'); // Combine all parts into a single string
 
     try {
-        const calendarId = await RNCalendarEvents.saveEvent(event.name, {
-            startDate,
-            endDate,
-            description, // Use the structured description
-            calendarId: calendar.id,
-        });
+      const calendarId = await RNCalendarEvents.saveEvent(event.name, {
+        startDate,
+        endDate,
+        description, // Use the structured description
+        calendarId: calendar.id,
+      });
 
       setCalendarId(id, calendarId);
       setLocalCalendarId(calendarId); // Store the new calendar ID
@@ -240,6 +241,16 @@ const EventDetailsScreen = ({ route }) => {
         </View>
 
         <View style={styles.cardContainer}>
+
+        <View style={styles.card}>
+            <View style={styles.iconLabelContainer}>
+              <Image source={require('../images/tracks-icon.png')} style={styles.icon} />
+              <View>
+                <Text style={styles.label}>{event.track}</Text>
+                <Text style={styles.subLabel}>Track</Text>
+              </View>
+            </View>
+          </View>
           <View style={styles.card}>
             <View style={styles.iconLabelContainer}>
               <Image source={require('../images/calendar-icon.png')} style={styles.icon} />
@@ -269,6 +280,8 @@ const EventDetailsScreen = ({ route }) => {
               </View>
             </View>
           </View>
+
+          
 
           {papers && papers.length > 0 && (
             <View style={styles.infoContainer}>
