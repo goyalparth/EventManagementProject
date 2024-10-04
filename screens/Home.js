@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, FlatList, Text, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react'; // Importing React and hooks
+import { View, Image, TouchableOpacity, StyleSheet, FlatList, Text, Linking } from 'react-native'; // Importing necessary components from React Native
+import { useNavigation } from '@react-navigation/native'; // Importing navigation hook for navigating between screens
 import { database } from '../firebaseConfig'; // Import Firebase configuration
-import { ref, onValue } from 'firebase/database'; // Firebase methods
+import { ref, onValue } from 'firebase/database'; // Importing Firebase methods for accessing the database
 
 const HomeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); // Initializing navigation
   const [events, setEvents] = useState([]); // Initialize state to hold events
 
-  // Fetch events from Firebase Realtime Database
+  // Fetch sessions from Firebase Realtime Database
   useEffect(() => {
-    const eventsRef = ref(database, 'Session'); // Reference to 'events' node in Firebase
+    const eventsRef = ref(database, 'Session'); // Reference to 'Session' node in Firebase
 
-    // Listen for changes in the 'events' node
+    // Listen for changes in the 'Session' node
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val(); // Get the data snapshot
       if (data) {
         // Convert fetched events to an array and parse the date and time
         let fetchedEvents = Object.keys(data).map((key) => ({
-          id: key,
-          title: data[key].name,
-          track: data[key].track, 
-          date: data[key].date,
-          startTime: data[key].startTime,
-          endTime: data[key].endTime,
-          // dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
+          id: key, // Unique identifier for the event
+          title: data[key].name, // Event title
+          track: data[key].track, // Track associated with the event
+          date: data[key].date, // Date of the event
+          startTime: data[key].startTime, // Start time of the event
+          endTime: data[key].endTime, // End time of the event
+          
           dateTime: new Date(`${data[key].date}T${data[key].startTime}`), // Combine date and time for sorting
           endDateTime: new Date(`${data[key].date}T${data[key].endTime}`), // Combined date and end time for filtering
         }));
@@ -46,33 +46,36 @@ const HomeScreen = () => {
     });
 
     // Cleanup listener when component unmounts
-    return () => unsubscribe();
+    return () => unsubscribe(); // Unsubscribe from the database on unmount
   }, []);
 
   // Navigate to EventDetails screen with relevant data and the event ID
   const handleNavigate = (id, title, date, startTime, endTime) => {
-    navigation.navigate('EventDetails', { id, title, date, startTime, endTime });
+    navigation.navigate('EventDetails', { id, title, date, startTime, endTime }); // Pass event details to the next screen
   };
 
   // Handle "Tracks" button to open external link
   const handleTracksPress = () => {
-    Linking.openURL('https://acis.aaisnet.org/acis2024/tracks/');
+    Linking.openURL('https://acis.aaisnet.org/acis2024/tracks/'); // Open the URL for tracks
+  
   };
 
   // Handle navigation to QR Code Screen
   const handleCheckInPress = () => {
-    navigation.navigate('QRCode');
+    navigation.navigate('Check-in'); // Navigate to Check-in screen
   };
 
   const handleSitePress = () => {
-    navigation.navigate('Site');
+    navigation.navigate('Site'); // Navigate to Site screen
   };
 
   // Render each event card
   const renderItem = ({ item }) => (
-    <View style={styles.cardWrapper}>
+    
+    <View style={styles.cardWrapper}> 
+    {/* Wrapper for each event card */}
       <TouchableOpacity onPress={() => handleNavigate(item.id, item.title, item.date, item.startTime, item.endTime)}>
-        <View style={styles.eventCard}>
+        <View style={styles.eventCard}> 
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.details}>Date: {item.date}</Text>
           <Text style={styles.details}>Duration: {item.startTime} - {item.endTime}</Text>
@@ -83,6 +86,7 @@ const HomeScreen = () => {
   );
 
   return (
+    // Main container for the screen 
     <View style={styles.mainContainer}>
       {/* Header Section */}
       <View style={styles.headerContainer}>
@@ -93,7 +97,7 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      {/* Combined Card for Navigation, Upcoming Conferences, and Leaderboard */}
+      {/* Combined Card for Navigation, Upcoming Sessions, and Leaderboard */}
       <View style={styles.combinedCard}>
         {/* Navigation Section */}
         <View style={styles.navContainer}>
@@ -113,7 +117,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Upcoming Conferences Section */}
+        {/* Upcoming Sessions Section */}
         <Text style={styles.sectionHeader}>UPCOMING SESSIONS</Text>
         <FlatList
           data={events}
@@ -150,125 +154,125 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#304067',
+    backgroundColor: '#304067', // Background color of the main container
   },
   headerContainer: {
-    backgroundColor: '#304067',
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: '#304067', // Background color for the header
+    padding: 20, // Padding inside the header
+    flexDirection: 'row', // Arrange items in a row
+    alignItems: 'center', // Center items vertically
+    marginBottom: 20, // Margin at the bottom of the header
   },
   profileIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 15,
+    width: 50, // Width of the profile icon
+    height: 50, // Height of the profile icon
+    marginRight: 15, // Margin to the right of the profile icon
   },
   greetingText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 24, // Font size for greeting text
+    fontWeight: 'bold', // Make the greeting text bold
+    color: '#fff', // Color of the greeting text
   },
   subText: {
-    fontSize: 16,
-    color: '#fff',
+    fontSize: 16, // Font size for the subtitle
+    color: '#fff', // Color of the subtitle
   },
   combinedCard: {
-    flex: 1,
-    backgroundColor: '#FCFAF8',
-    borderRadius: 15, 
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    marginHorizontal: 15,
-    marginBottom: 30,
+    flex: 1, // Take up available space
+    backgroundColor: '#FCFAF8', // Background color for the combined card
+    borderRadius: 15, // Rounded corners for the card
+    paddingVertical: 30, // Vertical padding inside the card
+    paddingHorizontal: 20, // Horizontal padding inside the card
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.1, // Shadow opacity
+    shadowRadius: 5, // Shadow radius
+    elevation: 3, // Elevation for Android shadow effect
+    marginHorizontal: 15, // Horizontal margin around the card
+    marginBottom: 30, // Bottom margin
   },
   navContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+    flexDirection: 'row', // Arrange navigation buttons in a row
+    justifyContent: 'space-between', // Space out navigation buttons evenly
+    marginBottom: 20, // Margin at the bottom of the navigation container
   },
   navButton: {
-    backgroundColor: '#F9F2E7',
-    padding: 10,
-    borderRadius: 10, 
-    alignItems: 'center',
-    width: '30%',
-    elevation: 2, 
+    backgroundColor: '#F9F2E7', // Background color for navigation buttons
+    padding: 10, // Padding inside the navigation button
+    borderRadius: 10, // Rounded corners for the button
+    alignItems: 'center', // Center items inside the button
+    width: '30%', // Width of the button
+    elevation: 2, // Elevation for Android shadow effect
   },
   navIcon: {
-    width: 40,
-    height: 40,
-    marginBottom: 5,
+    width: 40, // Width of the navigation icon
+    height: 40, // Height of the navigation icon
+    marginBottom: 5, // Margin at the bottom of the icon
   },
   navText: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 16, // Font size for navigation button text
+    color: '#000', // Color of the navigation text
   },
   sectionHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#304067',
+    fontSize: 20, // Font size for section headers
+    fontWeight: 'bold', // Make section headers bold
+    marginBottom: 10, // Margin at the bottom of the section header
+    color: '#304067', // Color of the section header
   },
   flatList: {
-    paddingHorizontal: 10,
-    marginBottom: 10, 
+    paddingHorizontal: 10, // Horizontal padding for FlatList
+    marginBottom: 10, // Margin at the bottom of the FlatList
   },
   cardWrapper: {
-    marginRight: 10,
+    marginRight: 10, // Margin to the right of each card
   },
   eventCard: {
-    backgroundColor: '#F9F2E7',
-    borderRadius: 10, 
-    padding: 20,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    width:190,
+    backgroundColor: '#F9F2E7', // Background color for event cards
+    borderRadius: 10, // Rounded corners for event cards
+    padding: 20, // Padding inside the event card
+    marginBottom: 10, // Margin at the bottom of the event card
+    shadowColor: '#000', // Shadow color for the event card
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset for the event card
+    shadowOpacity: 0.1, // Shadow opacity for the event card
+    shadowRadius: 5, // Shadow radius for the event card
+    elevation: 3, // Elevation for Android shadow effect
+    width: 190, // Fixed width for the event card
   },
   title: {
-    fontSize: 19,
+    fontSize: 19, // Font size for event title
     fontWeight: 'bold', // Make the title bold
-    color: '#000',
-    marginBottom: 10,
-    textAlign: 'center', // Center the title
+    color: '#000', // Color of the title text
+    marginBottom: 10, // Margin at the bottom of the title
+    textAlign: 'center', // Center the title text
   },
   details: {
-    fontSize: 14,
-    color: '#000',
+    fontSize: 14, // Font size for event details
+    color: '#000', // Color of the detail text
   },
   leaderboardContainer: {
-    flexDirection: 'column', // Display leaderboard cards in column
-    marginTop: 10,
+    flexDirection: 'column', // Display leaderboard cards in a column
+    marginTop: 10, // Margin at the top of the leaderboard container
   },
   leaderboardCard: {
-    backgroundColor: '#F9F2E7', // White background for leaderboard cards
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    backgroundColor: '#F9F2E7', // Background color for leaderboard cards
+    flexDirection: 'row', // Arrange items in a row within leaderboard card
+    alignItems: 'center', // Center items vertically in the card
+    padding: 20, // Padding inside the leaderboard card
+    borderRadius: 10, // Rounded corners for leaderboard cards
+    marginBottom: 10, // Margin at the bottom of each leaderboard card
+    shadowColor: '#000', // Shadow color for the leaderboard card
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset for the leaderboard card
+    shadowOpacity: 0.1, // Shadow opacity for the leaderboard card
+    shadowRadius: 5, // Shadow radius for the leaderboard card
+    elevation: 3, // Elevation for Android shadow effect
   },
   medalIcon: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
+    width: 30, // Width of the medal icon
+    height: 30, // Height of the medal icon
+    marginRight: 10, // Margin to the right of the medal icon
   },
   leaderText: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 16, // Font size for leader text
+    color: '#000', // Color of the leader text
   },
 });
