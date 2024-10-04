@@ -216,7 +216,17 @@ const EventDetailsScreen = ({ route }) => {
   };
 
   const handlePaperDownload = (url) => {
-    Linking.openURL(url).catch(err => console.error('An error occurred while opening the URL:', err));
+    Linking.openURL(url).catch((err) => {
+      const errorMessage = 'An error occurred while opening the URL.';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage, // Display the error message in the toast
+        position: 'bottom',
+        visibilityTime: 3000, // Toast duration (3 seconds)
+      });
+      console.error(errorMessage, err); // Optionally log the error for debugging
+    });
   };
 
   if (!event) {
@@ -297,6 +307,7 @@ const EventDetailsScreen = ({ route }) => {
             </View>
           )}
         </View>
+        
 
         <Toast ref={(ref) => Toast.setRef(ref)} />
       </ScrollView>

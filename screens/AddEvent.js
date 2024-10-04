@@ -59,7 +59,7 @@ const AddEvent = ({ navigation }) => {
   const addEvent = () => {
     // Check if the form is valid
     if (!validateForm()) {
-      Alert.alert('Error', 'Please fill out all fields before adding the event.');
+      Alert.alert('Error', 'Please fill out all fields before adding the session.');
       return;
     }
 
@@ -86,11 +86,11 @@ const AddEvent = ({ navigation }) => {
 
     push(eventRef, newEvent)
       .then(() => {
-        Alert.alert('Success', 'Event added successfully!');
+        Alert.alert('Success', 'Session created successfully!');
         navigation.goBack(); // Navigate back to ProgramScreen
       })
       .catch((error) => {
-        Alert.alert('Error', `Error adding event: ${error.message}`);
+        Alert.alert('Error', `Error creating session: ${error.message}`);
       });
   };
 
@@ -122,7 +122,7 @@ const AddEvent = ({ navigation }) => {
   return (
     <View style={styles.main}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Create New Conference</Text>
+        <Text style={styles.headerText}>Create New Session</Text>
       </View>
   
       <View style={styles.container}>
@@ -152,6 +152,7 @@ const AddEvent = ({ navigation }) => {
               <Picker.Item label="IS Research in Marginalized and Indigenous Contexts" value="IS Research in Marginalized and Indigenous Contexts" />
               <Picker.Item label="Decolonizing Information Systems Research" value="Decolonizing Information Systems Research" />
               <Picker.Item label="The Role of Open Source in the Digital Future (Sponsored)" value="The Role of Open Source in the Digital Future (Sponsored)" />
+              <Picker.Item label="Poster SLAM" value="Poster SLAM" />
             </Picker>
           </View>
           
@@ -166,7 +167,7 @@ const AddEvent = ({ navigation }) => {
 
             <Text style={styles.label}>Location</Text>
             <TextInput
-              placeholder="Enter Event Location"
+              placeholder="Enter Session Location"
               placeholderTextColor="#888888"
               value={location}
               onChangeText={setLocation}
@@ -285,7 +286,7 @@ const AddEvent = ({ navigation }) => {
             ))}
 
             <TouchableOpacity onPress={addEvent} style={styles.addButton}>
-              <Text style={styles.addButtonText}>ADD</Text>
+              <Text style={styles.addButtonText}>CREATE</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={navigation.goBack} style={styles.cancelButton}>
               <Text style={styles.addButtonText}>CANCEL</Text>
