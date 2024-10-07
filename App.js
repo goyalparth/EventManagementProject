@@ -11,27 +11,27 @@ import {Image, StyleSheet, View} from 'react-native';
 import Toast from 'react-native-toast-message';
 import HomeScreen from './screens/Home';
 import ProgramStack from './Navigation/ProgramStack';
-import SpeakerScreen from './screens/Speaker';
-import OrganisersScreen from './screens/Organisers';
-import AnnouncementsScreen from './screens/Announcements';
-import EventDetailsScreen from './screens/EventDetails';
-import AnnouncementsHeader from './Components/AnnouncementsHeader';
-import {FavoriteProvider} from './context/FavoriteContext';
-import {EventProvider} from './context/EventContext';
-import CommitteeScreen from './screens/Committee';
-import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
+//import SpeakerScreen from './screens/Speaker';
+//import OrganisersScreen from './screens/Organisers';
+//import AnnouncementsScreen from './screens/Announcements';
+//import EventDetailsScreen from './screens/EventDetails';
+//import AnnouncementsHeader from './Components/AnnouncementsHeader';
+//import {FavoriteProvider} from './context/FavoriteContext';
+//import {EventProvider} from './context/EventContext';
+//import CommitteeScreen from './screens/Committee';
+//import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import Signin from './screens/Signin';
 import Splash from './screens/Splash';
 import AnnouncementsScreen from './screens/Announcements';
 import EventDetailsScreen from './screens/EventDetails';
 import AnnouncementsHeader from './Components/AnnouncementsHeader';
-import {FavoriteProvider} from './context/FavoriteContext';
+//import {FavoriteProvider} from './context/FavoriteContext';
 import {EventProvider} from './context/EventContext';
 import AddEventScreen from './screens/AddEvent'; // Import AddEvent Screen
 import AddAnnouncement from './screens/AddAnnouncement'; // Adjust the import path
 import QRCodeScreen from './screens/QRCodeScanner'; // QR code screen import
 import About from './screens/About'; // About screen import
-import OrganisersScreen from './screens/Organisers'; // Organizers screen import
+//import OrganisersScreen from './screens/Organisers'; // Organizers screen import
 import Site from './screens/Site'; // Site screen import
 
 const Drawer = createDrawerNavigator();
@@ -79,7 +79,8 @@ export default function App() {
   // Drawer Navigator including all screens
   const DrawerNavigator = () => (
     <Drawer.Navigator
-      drawerContent={props => <CustomDrawerContent {...props} />}>
+      drawerContent={props => <CustomDrawerContent {...props} />}
+      initialRouteName="Home">
       <Drawer.Screen
         name="Home"
         component={HomeScreen}
@@ -99,38 +100,6 @@ export default function App() {
           drawerItemPress: e => {
             e.preventDefault();
             handleNavigationReset(navigation, 'Program');
-          },
-        })}
-      />
-      <Drawer.Screen
-        name="Speaker"
-        component={SpeakerScreen}
-        options={screenOptions}
-        listeners={({navigation}) => ({
-          drawerItemPress: e => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Speaker');
-          },
-        })}
-      />
-      <Drawer.Screen
-        name="Committee"
-        component={CommitteeScreen}
-        listeners={({navigation}) => ({
-          drawerItemPress: e => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Committee');
-          },
-        })}
-      />
-      <Drawer.Screen
-        name="Organisers"
-        component={OrganisersScreen}
-        options={screenOptions}
-        listeners={({navigation}) => ({
-          drawerItemPress: e => {
-            e.preventDefault();
-            handleNavigationReset(navigation, 'Organisers');
           },
         })}
       />

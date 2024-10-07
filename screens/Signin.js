@@ -7,8 +7,10 @@ import {
 import {useState} from 'react';
 import {ActivityIndicator, Text, TouchableOpacity} from 'react-native';
 import '../services/googleSignin';
+import { useNavigation } from '@react-navigation/native';
 
 const Signin = () => {
+  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(undefined);
 
@@ -20,6 +22,8 @@ const Signin = () => {
       setIsLoading(false);
       if (isSuccessResponse(response)) {
         setData(response.data);
+        // Navigate to the home screen
+        navigation.navigate('Drawer');
       } else {
         console.log('SIGNIN FAILURE');
       }
