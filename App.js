@@ -18,6 +18,7 @@ import QRCodeScreen from './screens/QRCodeScanner'; // Import screen for QR code
 import About from './screens/About'; // Import About screen
 import OrganisersScreen from './screens/Organisers'; // Import screen for the organizing committee
 import Site from './screens/Site'; // Import site information screen
+import LinkedInSignIn from './screens/LinkedInSignIn';
 
 // Initialize the drawer and stack navigators
 const Drawer = createDrawerNavigator();
@@ -149,6 +150,11 @@ export default function App() {
       <NavigationContainer>
         {/* Stack Navigator to handle navigation between screens */}
         <Stack.Navigator>
+        <Stack.Screen
+              name="LinkedInSignIn"
+              component={LinkedInSignIn} // Show LinkedIn sign-in screen first
+              options={{ headerShown: false }}
+            />
           {/* Main drawer navigation screen */}
           <Stack.Screen
             name="Drawer"
