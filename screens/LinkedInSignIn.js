@@ -1,106 +1,169 @@
-// LinkedInSignIn.js
+// src/LinkedInSignIn.js
+import React, { useState } from 'react';
+import { View, Button, Alert, Text, StyleSheet } from 'react-native';
+import { WebView } from 'react-native-webview';
 
-import React, { useEffect } from 'react';
-import { View, Button, Alert } from 'react-native';
-import { Linking } from 'react-native';
-
-const LINKEDIN_CLIENT_ID = '86p07gmy2sewyy'; // Replace with your LinkedIn Client ID
-const LINKEDIN_CLIENT_SECRET = 'PUZV8VOdJkWREdHu'; // Replace with your LinkedIn Client Secret
-const SCOPE = 'openid profile w_member_social email';
-const STATE = `linkedin${new Date().getTime()}`; // Unique state parameter
-const REDIRECT_URI = 'https://capstone-project-432506-default-rtdb.firebaseio.com/linkedin/callback'; // Must match the redirect URI in LinkedIn app settings
-const AUTH_URL = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&scope=${SCOPE}&state=${STATE}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-const TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken';
-const USER_INFO_URL = 'https://api.linkedin.com/v2/userinfo';
+const CLIENT_ID = '86p07gmy2sewyy';
+const CLIENT_SECRET = 'PUZV8VOdJkWREdHu';
+const REDIRECT_URI = 'https://www.linkedin.com/developers/tools/oauth/redirect'; 
 
 const LinkedInSignIn = () => {
-  useEffect(() => {
-    const handleURL = (url) => {
-      const { path, queryParams } = Linking.parse(url);
-      console.log("hellow 2");
-      
-      // Check if the URL is the redirect URI and if it contains a code
-      if (path === REDIRECT_URI && queryParams.code) {
-        const { code } = queryParams;
-        
-        fetchAccessToken(code);
+  const [email, setEmail] = useState(null);
+  const [payload, setPayload] = useState(null);
+  const [authUrl, setAuthUrl] = useState('');
+
+  // Function to initiate LinkedIn login
+  const initiateLinkedInLogin = () => {
+    console.log("hell");    
+    // Console.log("helLLLl");    
+
+    const scope = 'openid profile w_member_social email';
+    const state = `linkedin${new Date().getTime()}`;
+    const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${CLIENT_ID}&scope=${scope}&state=${state}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    // handleNavigationStateChange();
+    setAuthUrl(url);
+    
+  };
+
+  const getUser = async (data) => {
+    
+    // data = 'AQWGGq3Byf2cdQ-Yq1D26sCOT-Fjkszmx74KyS-uZThanG2GDCTIxEGl-slMCjRkJN51IYom4MUMPnb_9FfcxOSOqrM7s3sILo6vQ6Z4wmwB5z4HEAD_bMhMaW94uNa1xndxGQFIEp_QQ1AA--OYPJ55e9f_jhHd2d_Cm9W3tlp9D1lVh7oy87NCGLwzE-g-rET9WPYgoZqz_b35rYORBm1qc-gNFT3nwyyx7rykWbfAWa51ljVsK5IvaWj3_5F9r5EmVhc_9JoSmUURXbJA2aJOBLrdUjATiUEhZkPOd2FEgTWXO0YtVN7l9iElQixw6-3jHHiEP-ySmCS2swiKhw8DosKQ';
+    // const { access_token } = data;
+    console.log("************"+data);
+    const response = await fetch(
+      'https://api.linkedin.com/v2/userinfo',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${data.toString()}`,
+        },
       }
-    };
+    );
+    console.log("Response Status:", response.status);
+    const responseBody = await response.body(); // Get the response body as text
+    console.log("Response Body:", responseBody);
+  //   if (!response.ok) {
+  //     console.error("Failed to fetch user data", response.statusText);
+  //     return;
+  // }
+
+    console.log(response.body());
+    const userData = await response.json();
+    // Extracting specific details to log
+    const firstName = userData.firstName.localized.en_US;
+    const lastName = userData.lastName.localized.en_US;
+    // const profilePicture = userData.profilePicture?.['displayImage~']?.elements[0]?.identifiers[0]?.identifier || 'No Profile Picture';
+    
+    // Log specific details
+    console.log("First Name:", firstName.toString());
+    console.log("Last Name:", lastName);
+    // console.log("Profile Picture URL:", profilePicture);
+    setPayload(userData); // Store the user data in state
+  };
+
+  const getUserEmailId = async (data) => {
+    // console.log("tokenData");
+    // const { access_token } = data;
+    const response = await fetch(
+      'https://api.linkedin.com/v2/userinfo',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${data}`,
+        },
+      }
+    );
+    console.log("Response Status:", response.status);
+    const responseBody = await response.body(); // Get the response body as text
+    console.log("Response Body:", responseBody);
 
     
-
-    const linkingListener = Linking.addEventListener('url', ({ url }) => handleURL(url));
-
-    return () => {
-      linkingListener.remove();
-    };
-  }, []);
-
-  const handleLogin = async () => {
-    try {
-        console.log("Hello")
-      // Open LinkedIn login page
-      await Linking.openURL(AUTH_URL);
-      console.log("Hello2")
-    } catch (error) {
-      Alert.alert('Error', 'Failed to open LinkedIn login page');
-      console.error(error);
-    }
+    const emailData = await response.json();
+    setEmail(emailData.elements[0]['handle~'].emailAddress); // Store email in state
+    handleGetUser();
   };
 
-  const fetchAccessToken = async (code) => {
-    try {
-        console.log("Hello")
-      const response = await fetch(TOKEN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: REDIRECT_URI,
-          client_id: LINKEDIN_CLIENT_ID,
-          client_secret: LINKEDIN_CLIENT_SECRET,
-        }),
-      });
+  const handleNavigationStateChange = async (navState) => {
+    // console.log("Current URL: ", navState.url);
 
-      const data = await response.body.json();
-      if (data.error) {
-        Alert.alert('Error', `Error fetching access token: ${data.error_description}`);
-        return;
-      }
-      console.log('Access Token:', data.access_token);
-      
-      
-      // Fetch user details using the access token
-      fetchUserDetails(data.access_token);
-      
-    } catch (error) {
-      console.error('Error fetching access token:', error);
-    }
-  };
+    // Ensure the URL starts with the expected REDIRECT_URI
+    if (navState.url.startsWith(REDIRECT_URI)) {
+        try {
+          // console.log(navState.url);
 
-  const fetchUserDetails = async (accessToken) => {
-    try {
-      const userInfoResponse = await fetch(USER_INFO_URL, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      
-      const userInfo = await userInfoResponse.json();
-      console.log('User Info:', userInfo);
-      
-      // Handle user information as needed
-    } catch (error) {
-      console.error('Error fetching user details:', error);
+          const startStr = "code="; // Start string
+          const endStr = "&state="; // End string
+
+          // Find the index of the start and end strings
+          const startIndex = navState.url.indexOf(startStr);
+          const endIndex = navState.url.indexOf(endStr);
+          // Adjust startIndex to the character after the start string
+          const code = navState.url.substring(startIndex + startStr.length, endIndex).trim(); // Extract substring and trim spaces
+
+            // Create a URL object to parse the navState.url
+            // const code = new URL(navState.url).searchParams.get('?code');
+
+            // Extract the authorization code from the URL parameters
+            // const code = url.searchParams.get('code');
+
+            // console.log('Authorization Code:');
+            // console.log(`Authorization Code: ${code ? code : 'No code found'}`);
+
+            // Proceed only if the code is valid
+            if (code) {
+                // Use the extracted code for token request
+                const body = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code,
+                    redirect_uri: REDIRECT_URI,
+                    client_id: CLIENT_ID,
+                    client_secret: CLIENT_SECRET,
+                }).toString();
+
+                // console.log("Request Body: ", body);
+
+                const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: body,
+                });
+
+                // console.log("Token Response Status: ", tokenResponse.status); // Log status code
+                const tokenData = await tokenResponse.json();
+                // console.log("Token Data Response:", tokenData); // Log the entire response
+
+                if (tokenData) {
+                    // console.log("Access Token Received: ", tokenData.access_token);
+                    // console.log(tokenData);
+                    // getUser(tokenData.access_token.toString());
+                    getUserEmailId(tokenData.access_token.toString());
+                } 
+                // else {
+                //     console.log("No access token found. Check the response for errors.");
+                //     if (tokenData.error) {
+                //         console.error("Error obtaining access token:", tokenData.error);
+                //         console.error("Error description:", tokenData.error_description);
+                //     }
+                // }
+            }
+        } catch (error) {
+            // console.error("Error parsing the URL: ", error);
+        }
     }
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button title="Sign in with LinkedIn" onPress={handleLogin} />
+    <View style={{ flex: 1 }}>
+      <Button title="Login with LinkedIn" onPress={initiateLinkedInLogin} />
+      {authUrl ? (
+        <WebView
+          source={{ uri: authUrl }}
+          onNavigationStateChange={handleNavigationStateChange}
+          style={{ flex: 1 }}
+        />
+      ) : null}
     </View>
   );
 };
