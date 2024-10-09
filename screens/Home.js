@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; // Importing React and hooks
-import { View, Image, TouchableOpacity, StyleSheet, FlatList, Text, Linking } from 'react-native'; // Importing necessary components from React Native
+import { View, Image, TouchableOpacity, StyleSheet, FlatList, Text, Linking, ScrollView } from 'react-native'; // Importing necessary components from React Native
 import { useNavigation } from '@react-navigation/native'; // Importing navigation hook for navigating between screens
 import { database } from '../firebaseConfig'; // Import Firebase configuration
 import { ref, onValue } from 'firebase/database'; // Importing Firebase methods for accessing the database
@@ -98,7 +98,9 @@ const HomeScreen = () => {
       </View>
 
       {/* Combined Card for Navigation, Upcoming Sessions, and Leaderboard */}
+      <ScrollView contentContainerStyle={styles.scrollView}>
       <View style={styles.combinedCard}>
+      
         {/* Navigation Section */}
         <View style={styles.navContainer}>
           <TouchableOpacity style={styles.navButton} onPress={handleTracksPress}>
@@ -115,6 +117,7 @@ const HomeScreen = () => {
             <Image source={require('../images/sitemap-icon.png')} style={styles.navIcon} />
             <Text style={styles.navText}>Site Map</Text>
           </TouchableOpacity>
+          
         </View>
 
         {/* Upcoming Sessions Section */}
@@ -144,7 +147,9 @@ const HomeScreen = () => {
             <Text style={styles.leaderText}>Person 3</Text>
           </View>
         </View>
+        
       </View>
+      </ScrollView>
     </View>
   );
 };
@@ -155,6 +160,9 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: '#304067', // Background color of the main container
+  },
+  scrollView: {
+    backgroundColor: '#304067', // Background color of the scroll view
   },
   headerContainer: {
     backgroundColor: '#304067', // Background color for the header
@@ -178,11 +186,10 @@ const styles = StyleSheet.create({
     color: '#fff', // Color of the subtitle
   },
   combinedCard: {
-    flex: 1, // Take up available space
     backgroundColor: '#FCFAF8', // Background color for the combined card
     borderRadius: 15, // Rounded corners for the card
     paddingVertical: 30, // Vertical padding inside the card
-    paddingHorizontal: 20, // Horizontal padding inside the card
+    paddingHorizontal: 10, // Horizontal padding inside the card
     shadowColor: '#000', // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset
     shadowOpacity: 0.1, // Shadow opacity
@@ -190,6 +197,7 @@ const styles = StyleSheet.create({
     elevation: 3, // Elevation for Android shadow effect
     marginHorizontal: 15, // Horizontal margin around the card
     marginBottom: 30, // Bottom margin
+    
   },
   navContainer: {
     flexDirection: 'row', // Arrange navigation buttons in a row
@@ -237,6 +245,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5, // Shadow radius for the event card
     elevation: 3, // Elevation for Android shadow effect
     width: 190, // Fixed width for the event card
+    height: 200,
   },
   title: {
     fontSize: 19, // Font size for event title
