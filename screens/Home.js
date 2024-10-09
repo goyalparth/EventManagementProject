@@ -93,7 +93,7 @@ const HomeScreen = () => {
         <Image source={require('../images/user-icon.jpg')} style={styles.profileIcon} />
         <View>
           <Text style={styles.greetingText}>Hello, User!</Text>
-          <Text style={styles.subText}>Welcome to the ACIS Event Mangagement App</Text>
+          <Text style={styles.subText}>Welcome to the ACIS Event Management App</Text>
         </View>
       </View>
 
@@ -184,6 +184,8 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 16, // Font size for the subtitle
     color: '#fff', // Color of the subtitle
+    width:'match_parent',
+    marginRight:30,
   },
   combinedCard: {
     backgroundColor: '#FCFAF8', // Background color for the combined card

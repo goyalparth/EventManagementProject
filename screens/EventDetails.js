@@ -372,6 +372,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000000',
     marginLeft: 10,
+    width:'match_parent',
+    marginRight:10,
   },
   subLabel: {
     paddingHorizontal: 10,
