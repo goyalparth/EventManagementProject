@@ -39,7 +39,20 @@ const EventDetailsScreen = ({ route }) => {
         } catch (err) {
           console.warn(err);
         }
-      }
+      } else if (Platform.OS === 'ios') {
+        try {
+          // Request permissions for iOS
+          const status = await RNCalendarEvents.requestPermissions();
+
+          if (status === 'authorized') {
+            console.log('Calendar permissions granted on iOS');
+          } else {
+            console.log('Calendar permissions denied on iOS');
+          }
+        } catch (error) {
+          console.error('Error requesting calendar permissions on iOS:', error);
+        }
+      }  
     };
 
     fetchCalendarPermissions();
@@ -169,7 +182,8 @@ const EventDetailsScreen = ({ route }) => {
       const calendarId = await RNCalendarEvents.saveEvent(event.name, {
         startDate,
         endDate,
-        description, // Use the structured description
+        description, 
+        notes: description,// Use the structured description
         calendarId: calendar.id,
       });
 
