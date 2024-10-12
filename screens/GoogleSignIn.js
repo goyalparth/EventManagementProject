@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HomeScreen from '../screens/HomeScreen';
+
 
 
 
@@ -24,7 +24,7 @@ const GoogleSignIn = ({ navigation }) => {
   const checkPreviousSignIn = async () => {
     const userToken = await AsyncStorage.getItem('userToken');
     if (userToken) {
-      navigation.navigate('HomeScreen');
+      navigation.navigate('Drawer');
     }
   };
 
@@ -38,7 +38,7 @@ const GoogleSignIn = ({ navigation }) => {
       console.log('User Info:', userInfo);
       if (userInfo.data && userInfo.data.idToken) {
         await AsyncStorage.setItem('userToken', userInfo.data.idToken);
-        navigation.navigate('HomeScreen');
+        navigation.navigate('Drawer');
       } else {
         console.log('No ID token available. Full user info:', JSON.stringify(userInfo, null, 2));
         // Handle the case when no ID token is available
