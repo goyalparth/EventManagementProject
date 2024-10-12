@@ -9,6 +9,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const HomeScreen = () => {
   const navigation = useNavigation(); // Initializing navigation
   const [events, setEvents] = useState([]); // Initialize state to hold events
+  const [userName, setUserName] = useState('User');
+  const [userPhoto, setUserPhoto] = useState(null);
+
+  useEffect(() => {
+    const eventsRef = ref(database, 'Session'); // Reference to 'Session' node in Firebase
+    const fetchUserInfo = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          const decodedToken = JSON.parse(atob(userToken.split('.')[1]));
+          setUserName(`${decodedToken.given_name} ${decodedToken.family_name}`);
+          setUserPhoto(decodedToken.picture);
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   // Fetch sessions from Firebase Realtime Database
   useEffect(() => {
@@ -102,10 +122,14 @@ const HomeScreen = () => {
     <View style={styles.mainContainer}>
       {/* Header Section */}
       <View style={styles.headerContainer}>
-        <Image source={require('../images/user-icon.jpg')} style={styles.profileIcon} />
+        {userPhoto ? (
+          <Image source={{ uri: userPhoto }} style={styles.profileIcon} />
+        ) : (
+          <Image source={require('../images/user-icon.jpg')} style={styles.profileIcon} />
+        )}
         <View>
-          <Text style={styles.greetingText}>Hello, User!</Text>
-          <Text style={styles.subText}>Welcome to the ACIS Event Mangagement App</Text>
+          <Text style={styles.greetingText}>Hello, {userName}!</Text>
+          <Text style={styles.subText}>Welcome to the ACIS Event Management App</Text>
         </View>
       </View>
 
