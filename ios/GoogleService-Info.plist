@@ -3,23 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>748465937898-m0uoh00ufv8uqqmdj13n2trlrieb5mkb.apps.googleusercontent.com</string>
+	<string>893356202916-cplubm5b7kpn8jvho7jdom3mksb3h9qj.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.748465937898-m0uoh00ufv8uqqmdj13n2trlrieb5mkb</string>
+	<string>com.googleusercontent.apps.893356202916-cplubm5b7kpn8jvho7jdom3mksb3h9qj</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>748465937898-87t02b6dp6luljgjh4g39vhoe0dkbu97.apps.googleusercontent.com</string>
+	<string>893356202916-uc4a35f7vnphf2i9qaq7vck4r7718k0m.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAcEZNiCaT1hVZe9N38QNR75U9GBG-fR3w</string>
+	<string>AIzaSyB3II5kBUM4Oe_Omw9jYl9xGNeDN1_S-8I</string>
 	<key>GCM_SENDER_ID</key>
-	<string>748465937898</string>
+	<string>893356202916</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.eventmanagernewpro</string>
+	<string>com.capstone.awesomeproject</string>
 	<key>PROJECT_ID</key>
-	<string>event-manager-2ae16</string>
+	<string>capstone2024uc-e385c</string>
 	<key>STORAGE_BUCKET</key>
-	<string>event-manager-2ae16.appspot.com</string>
+	<string>capstone2024uc-e385c.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +31,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:748465937898:ios:49ba50c888b5f154bf6693</string>
+	<string>1:893356202916:ios:9856186a449e0582b17f31</string>
+	<key>DATABASE_URL</key>
+	<string>https://capstone2024uc-e385c-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

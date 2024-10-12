@@ -3,6 +3,8 @@ import { View, Image, TouchableOpacity, StyleSheet, FlatList, Text, Linking } fr
 import { useNavigation } from '@react-navigation/native'; // Importing navigation hook for navigating between screens
 import { database } from '../firebaseConfig'; // Import Firebase configuration
 import { ref, onValue } from 'firebase/database'; // Importing Firebase methods for accessing the database
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // Initializing navigation
@@ -67,6 +69,16 @@ const HomeScreen = () => {
 
   const handleSitePress = () => {
     navigation.navigate('Site'); // Navigate to Site screen
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await GoogleSignin.signOut();
+      await AsyncStorage.removeItem('userToken');
+      navigation.replace('GoogleSignIn');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Render each event card
@@ -145,6 +157,9 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
+      <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+        <Text style={styles.signOutText}>Sign Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -274,5 +289,17 @@ const styles = StyleSheet.create({
   leaderText: {
     fontSize: 16, // Font size for leader text
     color: '#000', // Color of the leader text
+  },
+  signOutButton: {
+    backgroundColor: '#F9F2E7',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 15,
+    marginBottom: 30,
+  },
+  signOutText: {
+    fontSize: 16,
+    color: '#000',
   },
 });

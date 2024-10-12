@@ -18,6 +18,7 @@ import QRCodeScreen from './screens/QRCodeScanner'; // Import screen for QR code
 import About from './screens/About'; // Import About screen
 import OrganisersScreen from './screens/Organisers'; // Import screen for the organizing committee
 import Site from './screens/Site'; // Import site information screen
+import GoogleSignIn from './screens/GoogleSignIn'; // Import Google Sign-In screen
 
 // Initialize the drawer and stack navigators
 const Drawer = createDrawerNavigator();
@@ -148,8 +149,12 @@ export default function App() {
     <EventProvider>
       <NavigationContainer>
         {/* Stack Navigator to handle navigation between screens */}
-        <Stack.Navigator>
-          {/* Main drawer navigation screen */}
+        <Stack.Navigator initialRouteName="GoogleSignIn">
+          <Stack.Screen
+            name="GoogleSignIn"
+            component={GoogleSignIn}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Drawer"
             component={DrawerNavigator}
