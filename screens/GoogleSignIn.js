@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HomeScreen from '../screens/HomeScreen';
+
+
 
 const GoogleSignIn = ({ navigation }) => {
   const [isSigninInProgress, setIsSigninInProgress] = useState(false);
@@ -21,7 +24,7 @@ const GoogleSignIn = ({ navigation }) => {
   const checkPreviousSignIn = async () => {
     const userToken = await AsyncStorage.getItem('userToken');
     if (userToken) {
-      navigation.replace('Home');
+      navigation.navigate('HomeScreen');
     }
   };
 
@@ -32,8 +35,19 @@ const GoogleSignIn = ({ navigation }) => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      await AsyncStorage.setItem('userToken', userInfo.idToken);
-      navigation.replace('Home');
+      console.log('User Info:', userInfo);
+      if (userInfo.data && userInfo.data.idToken) {
+        await AsyncStorage.setItem('userToken', userInfo.data.idToken);
+        navigation.navigate('HomeScreen');
+      } else {
+        console.log('No ID token available. Full user info:', JSON.stringify(userInfo, null, 2));
+        // Handle the case when no ID token is available
+        Alert.alert(
+          'Sign-In Error',
+          'Unable to sign in. Please try again later.',
+          [{ text: 'OK' }]
+        );
+      }
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('Sign in cancelled');
