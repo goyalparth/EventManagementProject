@@ -6,71 +6,58 @@ import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { database } from '../firebaseConfig'; // Import Firebase configuration
 import { ref, onValue, remove } from 'firebase/database'; // Firebase methods
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProgramScreen = () => {
   const navigation = useNavigation();
   const [events, setEvents] = useState([]); // Initialize state to hold all events
   const [filteredEvents, setFilteredEvents] = useState([]); // State for filtered events based on selected date
   const [selectedDate, setSelectedDate] = useState(null); // State for tracking the selected date
+  const [isAdminUser,setIsAdminUser] = useState(false);
 
   // Fetch events from Firebase Realtime Database
   useEffect(() => {
-    const eventsRef = ref(database, 'Session'); // Reference to the 'Session' node in Firebase
-
-    // Listen for changes in the 'Session' node
+    const eventsRef = ref(database, 'Session');
     const unsubscribe = onValue(eventsRef, (snapshot) => {
-      const data = snapshot.val(); // Retrieve data snapshot from Firebase
+      const data = snapshot.val();
       if (data) {
-        // Map fetched data to an array of events with their IDs
         const fetchedEvents = Object.keys(data).map((key) => ({
-          id: key, // Store the ID of the event
+          id: key,
           ...data[key],
         }));
-
-        // Sort events by date, then start time, then end time
+        
         const sortedEvents = fetchedEvents.sort((a, b) => {
-          const dateA = moment(a.date, 'YYYY-MM-DD'); // Parse date for event A
-          const dateB = moment(b.date, 'YYYY-MM-DD'); // Parse date for event B
-
-          // Compare dates
+          const dateA = moment(a.date, 'YYYY-MM-DD');
+          const dateB = moment(b.date, 'YYYY-MM-DD');
           if (!dateA.isSame(dateB)) {
             return dateA - dateB;
           }
-
-          // Compare start times
-          const startTimeA = a.startTime || '';
-          const startTimeB = b.startTime || '';
-          const startTimeComparison = startTimeA.localeCompare(startTimeB);
-
-          if (startTimeComparison !== 0) {
-            return startTimeComparison;
-          }
-
-          // If start times are the same, compare end times
-          const endTimeA = a.endTime || '';
-          const endTimeB = b.endTime || '';
-          return endTimeA.localeCompare(endTimeB);
+          return a.startTime.localeCompare(b.startTime);
         });
 
-        setEvents(sortedEvents); // Update state with sorted events
-
-        // Set default selected date to the first day of the week
+        setEvents(sortedEvents);
+        
         const defaultDate = moment('2024-12-01').format('YYYY-MM-DD');
         setSelectedDate(defaultDate);
-
-        // Filter events based on the default selected date
         const filtered = sortedEvents.filter(event =>
           moment(event.date, 'YYYY-MM-DD').isSame(moment(defaultDate, 'YYYY-MM-DD'))
         );
-        setFilteredEvents(filtered); // Set filtered events for the default date
+        setFilteredEvents(filtered);
       } else {
-        setEvents([]); // If no data is found, reset events to an empty array
-        setFilteredEvents([]); // Reset filtered events to an empty array
+        setEvents([]);
+        setFilteredEvents([]);
       }
     });
 
-    // Cleanup listener when component unmounts
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const isAdmin = await AsyncStorage.getItem('isAdmin');
+      setIsAdminUser(JSON.parse(isAdmin));
+    };
+    checkAdminStatus();
   }, []);
 
   // Handle date click and filter events
@@ -135,79 +122,65 @@ const ProgramScreen = () => {
   };
 
   // Render delete action for Swipeable
-  const renderRightActions = (id) => (
-    <View style={styles.deleteButtonContainer}>
-      <TouchableOpacity onPress={() => handleDelete(id)}>
+  const renderRightActions = (id) => {
+    if (!isAdminUser) return null;
+    return (
+      <TouchableOpacity onPress={() => handleDelete(id)} style={styles.deleteButton}>
         <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {/* Conference Program Heading */}
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>CONFERENCE PROGRAM</Text> 
-          {/* Header text for the conference program */}
+          <Text style={styles.headerText}>CONFERENCE PROGRAM</Text>
         </View>
-
-        {/* CardView that includes the month, date selector, and events */}
         <View style={styles.cardContainer}>
-          {/* Month Header */}
           <View style={styles.monthContainer}>
-            <Text style={styles.monthText}>December 2024</Text> 
-            {/* Displaying the month for the event list */}
+            <Text style={styles.monthText}>December 2024</Text>
           </View>
-
-          {/* Date Selector with Day Names */}
           <View style={styles.dateSelector}>
             {weekDates.map((date) => (
               <TouchableOpacity key={date} onPress={() => handleDateClick(date)}>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dayText}>{moment(date).format('ddd').toUpperCase()}</Text> 
-                  {/* Display day of the week */}
+                  <Text style={styles.dayText}>{moment(date).format('ddd').toUpperCase()}</Text>
                   <Text style={[styles.dateText, selectedDate === date && styles.selectedDate]}>
-                    {moment(date).format('D')} 
-                    {/* Display date */}
+                    {moment(date).format('D')}
                   </Text>
                 </View>
               </TouchableOpacity>
             ))}
           </View>
-
-          {/* Event Cards */}
           <View style={styles.eventList}>
             {filteredEvents.length > 0 ? (
               filteredEvents.map((event) => (
                 <Swipeable
                   key={event.id}
-                  renderRightActions={() => renderRightActions(event.id)} // Show delete button on swipe
+                  renderRightActions={() => renderRightActions(event.id)}
+                  overshootRight={false}
                 >
-                  <TouchableOpacity
-                    onPress={() => handleNavigate(event)} // Navigate to event details with the full event object
-                  >
-                    <EventsCard style={styles.eventSubList}
-                      title={event.name} // Display event name on the card
-                      label={`${event.startTime} - ${event.endTime}\nTrack: ${event.track}`} // Show time range and track information
-                      isFavorite={event.isFavorite} // Show if the event is marked as favorite
-                      onFavoriteToggle={() => toggleFavorite(event.id)} // Handle favorite toggle
+                  <TouchableOpacity onPress={() => handleNavigate(event)}>
+                    <EventsCard
+                      style={styles.eventSubList}
+                      title={event.name}
+                      label={`${event.startTime} - ${event.endTime}\nTrack: ${event.track}`}
                     />
                   </TouchableOpacity>
                 </Swipeable>
               ))
             ) : (
-              <Text style={styles.noEventsText}>No events for this date</Text> // Message when no events are available
+              <Text style={styles.noEventsText}>No events for this date</Text>
             )}
           </View>
         </View>
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddEvent')}>
-        <Image source={require('../images/add_event.png')} style={styles.icon} /> 
-        {/* Icon for adding a new event */}
-      </TouchableOpacity>
+      {isAdminUser && (
+        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddEvent')}>
+          <Image source={require('../images/add_event.png')} style={styles.icon} />
+        </TouchableOpacity>
+      )}
     </GestureHandlerRootView>
   );
 };
@@ -311,6 +284,17 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    height: '100%',
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

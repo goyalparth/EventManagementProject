@@ -19,6 +19,7 @@ import About from './screens/About'; // Import About screen
 import OrganisersScreen from './screens/Organisers'; // Import screen for the organizing committee
 import Site from './screens/Site'; // Import site information screen
 import GoogleSignIn from './screens/GoogleSignIn'; // Import Google Sign-In screen
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Initialize the drawer and stack navigators
 const Drawer = createDrawerNavigator();
@@ -145,62 +146,63 @@ export default function App() {
   );
 
   return (
-    // Wrap app in event context provider to manage event data
-    <EventProvider>
-      <NavigationContainer>
-        {/* Stack Navigator to handle navigation between screens */}
-        <Stack.Navigator initialRouteName="GoogleSignIn">
-          <Stack.Screen
-            name="GoogleSignIn"
-            component={GoogleSignIn}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Drawer"
-            component={DrawerNavigator}
-            options={{ headerShown: false }} // Hide the header for the drawer
-          />
-          {/* Announcements screen */}
-          <Stack.Screen
-            name="Announcements"
-            component={AnnouncementsScreen}
-            options={screenOptions} // Apply global styling here
-          />
-          {/* Event details screen */}
-          <Stack.Screen
-            name="EventDetails"
-            component={EventDetailsScreen}
-            options={screenOptions} // Use the same global options
-          />
-          {/* Add new event screen */}
-          <Stack.Screen
-            name="AddEvent"
-            component={AddEventScreen}
-            options={{
-              headerStyle: {
-                backgroundColor: '#304067', // Same color for the toolbar
-              },
-              headerTintColor: '#FCFAF8', // Set icon/text color in header
-              headerTitle: '', // Remove title for this screen
-            }}
-          />
-          {/* Add new announcement screen */}
-          <Stack.Screen
-            name="AddAnnouncement"
-            component={AddAnnouncement}
-            options={{
-              headerStyle: {
-                backgroundColor: '#304067', // Toolbar background color
-              },
-              headerTintColor: '#FCFAF8', // Set toolbar icon color
-              headerTitle: '', // Remove title from the header for this screen
-            }}
-          />
-        </Stack.Navigator>
-        {/* Toast messages across the app */}
-        <Toast ref={(ref) => Toast.setRef(ref)} />
-      </NavigationContainer>
-    </EventProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <EventProvider>
+        <NavigationContainer>
+          {/* Stack Navigator to handle navigation between screens */}
+          <Stack.Navigator initialRouteName="GoogleSignIn">
+            <Stack.Screen
+              name="GoogleSignIn"
+              component={GoogleSignIn}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Drawer"
+              component={DrawerNavigator}
+              options={{ headerShown: false }} // Hide the header for the drawer
+            />
+            {/* Announcements screen */}
+            <Stack.Screen
+              name="Announcements"
+              component={AnnouncementsScreen}
+              options={screenOptions} // Apply global styling here
+            />
+            {/* Event details screen */}
+            <Stack.Screen
+              name="EventDetails"
+              component={EventDetailsScreen}
+              options={screenOptions} // Use the same global options
+            />
+            {/* Add new event screen */}
+            <Stack.Screen
+              name="AddEvent"
+              component={AddEventScreen}
+              options={{
+                headerStyle: {
+                  backgroundColor: '#304067', // Same color for the toolbar
+                },
+                headerTintColor: '#FCFAF8', // Set icon/text color in header
+                headerTitle: '', // Remove title for this screen
+              }}
+            />
+            {/* Add new announcement screen */}
+            <Stack.Screen
+              name="AddAnnouncement"
+              component={AddAnnouncement}
+              options={{
+                headerStyle: {
+                  backgroundColor: '#304067', // Toolbar background color
+                },
+                headerTintColor: '#FCFAF8', // Set toolbar icon color
+                headerTitle: '', // Remove title from the header for this screen
+              }}
+            />
+          </Stack.Navigator>
+          {/* Toast messages across the app */}
+          <Toast ref={(ref) => Toast.setRef(ref)} />
+        </NavigationContainer>
+      </EventProvider>
+    </GestureHandlerRootView>
   );
 }
 

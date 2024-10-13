@@ -3,6 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-na
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const adminEmails = ['namaygoyal@gmail.com', ]; // List of admin emails
+
+const isAdmin = (email) => {
+  return adminEmails.includes(email);
+};
+
 
 
 
@@ -36,12 +42,16 @@ const GoogleSignIn = ({ navigation }) => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       console.log('User Info:', userInfo);
+      
       if (userInfo.data && userInfo.data.idToken) {
-        await AsyncStorage.setItem('userToken', userInfo.data.idToken);
+        const idToken = userInfo.data.idToken;
+        const email = userInfo.data.user.email;
+        const isAdminUser = isAdmin(email);
+        await AsyncStorage.setItem('userToken', idToken);
+        await AsyncStorage.setItem('isAdmin', JSON.stringify(isAdminUser));
         navigation.navigate('Drawer');
       } else {
         console.log('No ID token available. Full user info:', JSON.stringify(userInfo, null, 2));
-        // Handle the case when no ID token is available
         Alert.alert(
           'Sign-In Error',
           'Unable to sign in. Please try again later.',

@@ -3,9 +3,11 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../firebaseConfig'; // Import database
 import { ScrollView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AnnouncementsScreen = ({ navigation }) => {
   const [announcements, setAnnouncements] = useState([]);
+  const [isAdminUser,setIsAdminUser] = useState(false);
 
   useEffect(() => {
     const announcementRef = ref(database, 'Announcement');
@@ -29,6 +31,14 @@ const AnnouncementsScreen = ({ navigation }) => {
 
       setAnnouncements(loadedAnnouncements);
     });
+  }, []);
+  // check for admin status
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const isAdmin = await AsyncStorage.getItem('isAdmin');
+      setIsAdminUser(JSON.parse(isAdmin));
+    };
+    checkAdminStatus();
   }, []);
 
   const handleDelete = (key) => {
@@ -63,17 +73,21 @@ const AnnouncementsScreen = ({ navigation }) => {
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.description}>{item.description}</Text>
               </View>
+              {isAdminUser && (         // only show delete icon if user is admin
               <TouchableOpacity onPress={() => handleDelete(item.key)} style={styles.deleteIcon}>
                 <Image source={require('../images/delete_icon.png')} style={styles.iconImage} />
               </TouchableOpacity>
+            )}
             </View>
             <Text style={styles.dateTime}>{item.dateTime}</Text>
           </View>
         ))}
 
-        <TouchableOpacity onPress={() => navigation.navigate('AddAnnouncement')} style={styles.addButton}>
-          <Image source={require('../images/add_icon.png')} style={styles.addIconImage} />
-        </TouchableOpacity>
+        {isAdminUser && (
+          <TouchableOpacity onPress={() => navigation.navigate('AddAnnouncement')} style={styles.addButton}>
+            <Image source={require('../images/add_icon.png')} style={styles.addIconImage} />
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
