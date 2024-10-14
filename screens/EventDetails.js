@@ -62,7 +62,7 @@ const EventDetailsScreen = ({ route }) => {
     const unsubscribe = onValue(eventRef, async (snapshot) => {
       const eventData = snapshot.val();
       if (eventData) {
-        console.log('Fetched event data:', eventData); // Log data for debugging
+        // console.log('Fetched event data:', eventData); // Log data for debugging
         const startDate = eventData.startDate || `${eventData.date} ${eventData.startTime}`;
         const endDate = eventData.endDate || `${eventData.date} ${eventData.endTime}`;
 
@@ -211,7 +211,7 @@ const EventDetailsScreen = ({ route }) => {
   const removeCalendarEvent = async (calendarId) => {
     try {
       await RNCalendarEvents.removeEvent(calendarId);
-      console.log(`Event removed successfully: ${calendarId}`); // Log successful removal
+      // console.log(`Event removed successfully: ${calendarId}`); // Log successful removal
       Toast.show({
         type: 'success',
         position: 'bottom',
@@ -219,7 +219,7 @@ const EventDetailsScreen = ({ route }) => {
         visibilityTime: 2000,
       });
     } catch (error) {
-      console.error('Error removing event from calendar:', error);
+      // console.error('Error removing event from calendar:', error);
       Toast.show({
         type: 'error',
         position: 'bottom',
@@ -239,7 +239,7 @@ const EventDetailsScreen = ({ route }) => {
         position: 'bottom',
         visibilityTime: 3000, // Toast duration (3 seconds)
       });
-      console.error(errorMessage, err); // Optionally log the error for debugging
+      // console.error(errorMessage, err); // Optionally log the error for debugging
     });
   };
 
@@ -386,6 +386,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000000',
     marginLeft: 10,
+    width:'match_parent',
+    marginRight:10,
   },
   subLabel: {
     paddingHorizontal: 10,
