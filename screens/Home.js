@@ -182,13 +182,17 @@ const HomeScreen = () => {
             <Image source={require('../images/bronze-medal.png')} style={styles.medalIcon} />
             <Text style={styles.leaderText}>Person 3</Text>
           </View>
+          
         </View>
+        
         
       </View>
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
+      </ScrollView>
     </View>
+    
   );
 };
 
@@ -218,12 +222,13 @@ const styles = StyleSheet.create({
     fontSize: 24, // Font size for greeting text
     fontWeight: 'bold', // Make the greeting text bold
     color: '#fff', // Color of the greeting text
+    
   },
   subText: {
     fontSize: 16, // Font size for the subtitle
     color: '#fff', // Color of the subtitle
-    width:'match_parent',
-    marginRight:30,
+    width: '90%',
+    
   },
   combinedCard: {
     backgroundColor: '#FCFAF8', // Background color for the combined card
