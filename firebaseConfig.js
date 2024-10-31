@@ -1,23 +1,31 @@
 // firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database"; // Import Realtime Database
+import { 
+  FIREBASE_API_KEY, 
+  FIREBASE_AUTH_DOMAIN, 
+  FIREBASE_DATABASE_URL, 
+  FIREBASE_PROJECT_ID, 
+  FIREBASE_STORAGE_BUCKET, 
+  FIREBASE_MESSAGING_SENDER_ID, 
+  FIREBASE_APP_ID 
+} from '@env';
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyAWL-NQoBS-9XuPIFmKu1nS7ikK2m-p3lw",
+  apiKey: FIREBASE_API_KEY,
 
-  authDomain: "capstone2024uc-e385c.firebaseapp.com",
+  authDomain: FIREBASE_AUTH_DOMAIN,
 
-  databaseURL: "https://capstone2024uc-e385c-default-rtdb.firebaseio.com",
+  databaseURL: FIREBASE_DATABASE_URL,
 
-  projectId: "capstone2024uc-e385c",
+  projectId: FIREBASE_PROJECT_ID,
 
-  storageBucket: "capstone2024uc-e385c.appspot.com",
+  storageBucket: FIREBASE_STORAGE_BUCKET,
 
-  messagingSenderId: "893356202916",
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
 
-  appId: "1:893356202916:web:d017d22e1ca3079eb17f31"
-
+  appId:FIREBASE_APP_ID,
 };
 
 
