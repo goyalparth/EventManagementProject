@@ -1,3 +1,5 @@
+use_frameworks! :linkage => :static
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -14,14 +16,24 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+require_relative '../node_modules/react-native-permissions/scripts/setup'
+
 target 'AwesomeProject' do
   config = use_native_modules!
+
+  setup_permissions([
+    'Camera',
+    # Add any other permissions you need
+  ])
 
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  
 
   target 'AwesomeProjectTests' do
     inherit! :complete
